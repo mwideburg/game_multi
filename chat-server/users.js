@@ -1,7 +1,7 @@
 const users = []
 
 
-const addUser = (id, name, room, game) => {
+const addUser = (id, name, room, position) => {
     const existingUser = users.find(user => user.name.trim().toLowerCase() === name.trim().toLowerCase())
 
     if (existingUser) return { error: "Username has already been taken" }
@@ -9,20 +9,14 @@ const addUser = (id, name, room, game) => {
     if (!name) return { error: "Username is required" }
     if (!room) return { error: "Room is required" }
     
-    const user = { id, name, room, game}
+    const user = { id, name, room, position}
     users.push(user)
     return { user }
 }
 
-
-const addObject = (user, object) => {
-    user = users.find(user => user.name.trim().toLowerCase() === name.trim().toLowerCase())
-    user.object = object;
-    return { user }
-}
-const addPlayer = (id, name, object) => {
-    const user = users.find(user => user.name.trim().toLowerCase() === name.trim().toLowerCase())
-    user.object = object
+const updatePosition = (id, position) => {
+    const user = users.find(user => user.id === id)
+    user.position = position
     
     return {user}
 }
@@ -38,6 +32,6 @@ const deleteUser = (id) => {
 }
 
 const getUsers = (room) => users.filter(user => user.room === room)
-const getGame = (room) => games.filter(game => room.game === room)
+// const getGame = (room) => games.filter(game => room.game === room)
 
-module.exports = { addUser, getUser, deleteUser, getUsers, addPlayer, getGame, addObject }
+module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition }
