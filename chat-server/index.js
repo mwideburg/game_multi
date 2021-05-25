@@ -3,14 +3,14 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition } = require('./users')
+const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
 
 app.use(cors())
 
 io.on('connection', (socket) => {
     socket.on('login', ({ name, room }, callback) => {
-        const { user, error } = addUser(socket.id, name, room, [0, 0, 0])
+        const { user, error } = addUser(socket.id, name, room, null, null)
         if (error) return callback(error)
         socket.join(user.room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
@@ -25,14 +25,21 @@ io.on('connection', (socket) => {
         console.log(user)
         io.in(user.room).emit('player', { user: user.name, object: object} )
     })
-    socket.on('move', position => {
+    socket.on('move', (object) => {
+        const user = getUser(object.id);
+        
+        // updatePosition(object.position, object.id)
+        updatePosition(object.position, user.id, object.ball)
+        // console.log(position)
+        // let users = getUsers(user.room)
+        
+        io.in(user.room).emit('movePlayers', getUsers(user.room))
+    })
+    socket.on("playerSelected", (object) => {
         const user = getUser(socket.id);
-        
-        updatePosition(user.id, position)
-        console.log(position)
-        let users = getUsers(user.room)
-        
-        io.in(user.room).emit('movePlayers', users)
+        selectedPlayer(user.id, object.selected)
+        updatePosition(object.position, user.id)
+        io.in(user.room).emit('selectPlayer', {selected: object.selected, user: user})
     })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)
