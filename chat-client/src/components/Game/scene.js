@@ -86,7 +86,7 @@ const Scene = () => {
         })
         let controls = null;
         let selected = null;
-        
+        let computer = true;
         socket.on("selectPlayer", (obj) => {
             // selections.push(obj.selected)
             // document.getElementById(obj.selected).style.display = "none"
@@ -96,6 +96,7 @@ const Scene = () => {
             console.log(obj.user.selected)
             if(player2Name === "Player 2" && obj.user.selected === "player2"){
                 setName2(obj.user.name)
+                computer = false;
             }
          
             console.log(obj.selected)
@@ -157,6 +158,7 @@ const Scene = () => {
             
             document.getElementById("start-game").style.display = "none"
             console.log("STARTING")
+            
             start = true;
         })
         console.log(start)
@@ -225,9 +227,30 @@ const Scene = () => {
             }
 
         };
+        const moveComputer = (player2, ball, delta) => {
+          
+            let dir = 0
+       
+            
+            // console.log(player2.position)
+            
+            if(ballDirX < 0){
+                return;
+            }
+            if(player2.position.y > ball.position.y){
+                dir -= .03
+            }
+            if (player2.position.y < ball.position.y) {
+                dir += .03
+            }
 
+           
+
+            player2.translateY(dir);
+        }
         const collisionCheck = (ball) => {
             // console.log(ball)
+            
             if (ballDirY > ballSpeed * 2) {
                 ballDirY = ballSpeed * 2;
             }
@@ -296,14 +319,17 @@ const Scene = () => {
                 
                 const play = objects[selected]
                 const ball = objects["ball"]
-          
+                if (computer) {
+                    // console.log(objects["player2"])
+                    moveComputer(objects["player2"], ball, delta);
+                }
                
                 collisionCheck(ball)
                 
                 // ball.set.position(newPos.x, newPos.y, newPos.z)
                 socket.emit('move', { position: [play.position.x, play.position.y, play.position.z,], id: socket.id, name: name, ball: ball.position });
 
-                
+                prevTime = time;
 
             }
             
