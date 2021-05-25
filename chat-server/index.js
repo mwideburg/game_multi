@@ -15,7 +15,7 @@ io.on('connection', (socket) => {
         socket.join(user.room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
         io.in(room).emit('users', getUsers(room))
-        socket.in(room).emit('playerAdded', user)
+        io.in(room).emit('playerAdded', user)
         callback()
     })
     socket.on('addPlayer', object => {
@@ -24,6 +24,10 @@ io.on('connection', (socket) => {
         console.log("adding Player")
         console.log(user)
         io.in(user.room).emit('player', { user: user.name, object: object} )
+    })
+    socket.on('start', () => {
+        let user = getUser(socket.id)
+        io.in(user.room).emit('startGame')
     })
     socket.on('move', (object) => {
         const user = getUser(object.id);
@@ -35,11 +39,11 @@ io.on('connection', (socket) => {
         
         io.in(user.room).emit('movePlayers', getUsers(user.room))
     })
-    socket.on("playerSelected", (object) => {
+    socket.on("playerSelected", () => {
         const user = getUser(socket.id);
-        selectedPlayer(user.id, object.selected)
-        updatePosition(object.position, user.id)
-        io.in(user.room).emit('selectPlayer', {selected: object.selected, user: user})
+        let obj = selectedPlayer(user.id)
+        // updatePosition(user.position, user.id)
+        io.in(user.room).emit('selectPlayer', {selected: obj.selected, user: obj.user})
     })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)

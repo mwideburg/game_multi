@@ -19,8 +19,9 @@ const Scene = () => {
     const socket = useContext(SocketContext)
     const [keyDown, setKeyDown] = useState(0);
     const [keyPress, setKeyPress] = useState(0);
-    
-    // const [player1, setPlayer1]
+    const[player1Name, setName1] = useState("Player 1")
+    const[player2Name, setName2] = useState("Player 2")
+
     
 
     const [pressedKeys, setPressedKeys] = useState([]);
@@ -35,9 +36,10 @@ const Scene = () => {
         let moveRight = false;
         let canJump = false;
         let prevTime = performance.now();
+        let start;
         const velocity = new THREE.Vector3();
         const direction = new THREE.Vector3();
-
+        let selections = "player1";
 
         const camera = new THREE.PerspectiveCamera(
             75,
@@ -84,11 +86,19 @@ const Scene = () => {
         })
         let controls = null;
         let selected = null;
-
+        
         socket.on("selectPlayer", (obj) => {
-            
-            document.getElementById(obj.selected).style.display = "none"
+            // selections.push(obj.selected)
+            // document.getElementById(obj.selected).style.display = "none"
+            if(player1Name === "Player 1" && obj.user.selected === "player1"){
+                setName1(obj.user.name)
+            }
+            console.log(obj.user.selected)
+            if(player2Name === "Player 2" && obj.user.selected === "player2"){
+                setName2(obj.user.name)
+            }
          
+            console.log(obj.selected)
             if(obj.user.name != name){
                 return;
             }
@@ -105,13 +115,51 @@ const Scene = () => {
                 window.addEventListener('keyup', onKeyUp);
             
         })
+        socket.on("playerAdded", user => {
+            console.log(user)
+            // if(user.selected){
+            //     return;
+            // }
+            console.log("hey")
+            
+            socket.emit('playerSelected', user.id)
+            
+
+            
+            // socket.emit('playerSelected', { selections, position })
+        })
+
         Object.keys(objects).forEach((key) => {
             if(key != "ball"){
                 let player = objects[key]
                 scene.add(player)
             }
         })
-
+        // socket.on("playerAdded", () => {
+        //     if(users.length === 0){
+        //         return;
+        //     }
+        //     console.log("hey")
+        //     if(selections === "full"){
+        //         return;
+        //     }
+        //     if(selections === "player1"){
+        //         selectPlayer("player1");
+        //         selections =  "player2";
+        //     }
+        //     if (selections === "player2"){
+        //         selectPlayer(selections)
+        //         selections = "full"
+        //     }
+            
+        // })
+        socket.on("startGame", () => {
+            
+            document.getElementById("start-game").style.display = "none"
+            console.log("STARTING")
+            start = true;
+        })
+        console.log(start)
         
         const onKeyDown = function (event) {
 
@@ -141,7 +189,8 @@ const Scene = () => {
                     if (canJump === true) velocity.y += 350;
                     canJump = false;
                     break;
-
+                default:
+                    break;
             }
 
         };
@@ -170,16 +219,63 @@ const Scene = () => {
                 case 'KeyD':
                     moveRight = false;
                     break;
+                default:
+                    break;
 
             }
 
         };
+
+        const collisionCheck = (ball) => {
+            // console.log(ball)
+            if (ballDirY > ballSpeed * 2) {
+                ballDirY = ballSpeed * 2;
+            }
+            else if (ballDirY < -ballSpeed * 2) {
+                ballDirY = -ballSpeed * 2;
+            }
+            // if ball goes off the top side (side of table)
+            if (ball.position.y >= 3) {
+                ballDirY = -ballDirY;
+            }
+
+            // if ball goes off the bottom side (side of table)
+            if (ball.position.y <= -3) {
+                ballDirY = -ballDirY;
+            }
+            if (ball.position.x >= 6) {
+                ballDirX = -ballDirX;
+            }
+
+            // if ball goes off the bottom side (side of table)
+            if (ball.position.x <= -6) {
+                ballDirX = -ballDirX;
+            }
+            const playArr = [objects["player1"], objects["player2"]]
+            playArr.forEach(player => {
+                // const top = ball.position.distanceTo(player.position)
+                const tr = [player.position.x + .05, player.position.y + .5]
+                const bl = [player.position.x - .05, player.position.y - .5]
+                const distance = ball.position.distanceTo(player.position)
+                const ballPos = ball.position
+                const number1 = (tr[0] > 0) ? 0 : .2
+                const number2 = (tr[0] > 0) ? -.2 : 0
+                if (ballPos.x <= tr[0] + number1 && ballPos.x >= tr[0] + number2 && ballPos.y <= tr[1] && ballPos.y >= bl[1]){
+                    ballDirX = -ballDirX;
+                    // ballDirY = -ballDirY;
+                }
+            })
+            ball.position.x += ballDirX * ballSpeed;
+            ball.position.y += ballDirY * ballSpeed;
+            
+            
+        }
         var ballDirX = 1, ballDirY = 1, ballSpeed = .1;
         
         const animate = function () {
             requestAnimationFrame(animate);
             
-            if(controls != null && selected != null){
+            if(controls != null && selected != null && start){
                 const time = performance.now();
                 const delta = (time - prevTime) / 1000;
                 let dir = 0
@@ -199,37 +295,13 @@ const Scene = () => {
                 controls.getObject().position.y += (dir); // new behavior
                 
                 const play = objects[selected]
-
+                const ball = objects["ball"]
           
                
+                collisionCheck(ball)
                 
-                if (ballDirY > ballSpeed * 2) {
-                    ballDirY = ballSpeed * 2;
-                }
-                else if (ballDirY < -ballSpeed * 2) {
-                    ballDirY = -ballSpeed * 2;
-                }
-                // if ball goes off the top side (side of table)
-                if (objects["ball"].position.y >= 3) {
-                    ballDirY = -ballDirY;
-                }
-
-                // if ball goes off the bottom side (side of table)
-                if (objects["ball"].position.y <= -3) {
-                    ballDirY = -ballDirY;
-                }
-                if (objects["ball"].position.x >= 6) {
-                    ballDirX = -ballDirX;
-                }
-
-                // if ball goes off the bottom side (side of table)
-                if (objects["ball"].position.x <= -6) {
-                    ballDirX = -ballDirX;
-                }
-                objects["ball"].position.x += ballDirX * ballSpeed;
-                objects["ball"].position.y += ballDirY * ballSpeed;
-                
-                socket.emit('move', { position: [play.position.x, play.position.y, play.position.z,], id: socket.id, name: name, ball: objects["ball"].position });
+                // ball.set.position(newPos.x, newPos.y, newPos.z)
+                socket.emit('move', { position: [play.position.x, play.position.y, play.position.z,], id: socket.id, name: name, ball: ball.position });
 
                 
 
@@ -262,14 +334,17 @@ const Scene = () => {
         newPlayers["player1"] = play1
         newPlayers["player2"] = play2
         newPlayers["ball"] = ball
+        
         Object.keys(users).forEach(user => {
             if(user.selected != undefined){
                 let newObject = newPlayers[user.selected]
+                
                 newObject.position.set(user.position[0], user.position[1], user.position[2])
                 newPlayers[user.selected] = newObject
             }
         })
         setPlayers(newPlayers)
+        
         // console.log(players)
         return newPlayers
     }
@@ -282,10 +357,14 @@ const Scene = () => {
        return ball
     }
 
-
+    const startGame = () => {
+        socket.emit("start")
+        
+    }
     const selectPlayer = (selected) => {
         // setVelocity(.2);
         // console.log(selected)
+        console.log(users)
         const user = users.find(user => user.name === name)
         console.log(user)
         if(user.selected != null){
@@ -295,7 +374,7 @@ const Scene = () => {
         document.getElementById("player2").style.display = "none"
 
         const player = players[selected]
-
+        
       
         let position = [players[selected].position.x, players[selected].position.y, players[selected].position.z]
         socket.emit('playerSelected', {selected, position})
@@ -311,8 +390,9 @@ const Scene = () => {
             
             <Flex justifyContent="space-around" width="100%" height="100px">
                 
-                <Button id="player1" onClick={() => selectPlayer("player1")}>Player 1</Button>
-                <Button id="player2" onClick={() => selectPlayer("player2")}>Player 2</Button>
+                <Button id="player1" onClick={() => selectPlayer("player1")}>{player1Name}</Button>
+                <Button id="start-game" onClick={() => startGame()}> Start</Button>
+                <Button id="player2" onClick={() => selectPlayer("player2")}>{player2Name}</Button>
             </Flex>
             
             
