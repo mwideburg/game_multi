@@ -1,39 +1,66 @@
-// import * as THREE from "three";
-const THREE = require("three") 
-function Pong(){
-    const init = () => {
-        var scene = new THREE.Scene();
-
-        // CAMERA
-        var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+import * as THREE from "three";
+import React, {ReactComponent} from 'react'
+import { render } from "react-dom";
+class Pong extends React.Component{
+    constructor(scene){
+        super(scene)
+        console.log(scene)
+        //camera
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(850, 500);
         camera.position.z = 5;
 
         // RENDER
-        var renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        
+        this.state = {
+            camera: camera,
+            renderer: renderer,
+            scene: scene,
+        }
+
+        this.animate = this.animate.bind(this)
+        
+    }
+    componentDidMount(){
+       
+        // var scene = new THREE.Scene();
+
+        // CAMERA
+
+        
+
 
 
         // OBJECTS
-        var geometry = new THREE.SphereGeometry(5, 32, 32);
-        var material = new THREE.MeshPhongMaterial({ color: 0xffff00 });
-        var sphere = new THREE.Mesh(geometry, material);
-        // controls = new THREE.PointerLockControls(camera, renderer.domElement);
-        // controls.addEventListener('change', render)
-        var cube = new THREE.Mesh(geometry, material);
-
-
-        scene.add(sphere);
-        scene.add(cube);
-        const animate = () => {
-            requestAnimationFrame(animate);
-
-            renderer.render(scene, camera);
-        }
-        animate();
+        
+       this.animate();
     }
-    
-    
+       
+    addSphere(){
+        console.log("adding Sphere")
+        var sphere = new THREE.CircleGeometry(.12, 32);
+        var material = new THREE.MeshBasicMaterial({ color: "white" });
+        let ball = new THREE.Mesh(sphere, material);
+       this.state.scene.add(ball)
+        return ball
+    }
+
+        
+    animate(){
+            requestAnimationFrame(this.animate);
+            // console.log("hey")
+            this.state.renderer.render(this.state.scene, this.state.camera);
+    }
 }
+    
+    
+    
+
 
 export default Pong

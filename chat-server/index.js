@@ -3,7 +3,7 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer } = require('./users')
+const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
 
 app.use(cors())
@@ -11,10 +11,14 @@ app.use(cors())
 io.on('connection', (socket) => {
     socket.on('login', ({ name, room }, callback) => {
         const { user, error } = addUser(socket.id, name, room, null, null)
+        
         if (error) return callback(error)
         socket.join(user.room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
         io.in(room).emit('users', getUsers(room))
+        console.log(getGame(user.room))
+
+        io.in(room).emit('games', getGame(user.room))
         io.in(room).emit('playerAdded', user)
         callback()
     })
@@ -27,6 +31,8 @@ io.on('connection', (socket) => {
     })
     socket.on('start', () => {
         let user = getUser(socket.id)
+        let room = user.room;
+        setGame(room)
         io.in(user.room).emit('startGame')
     })
     socket.on('move', (object) => {

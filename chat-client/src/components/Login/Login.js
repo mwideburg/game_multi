@@ -12,13 +12,16 @@ const Login = () => {
     const { name, setName, room, setRoom } = useContext(MainContext)
     const history = useHistory()
     const toast = useToast()
-    const { setUsers } = useContext(UsersContext)
+    const { users, setUsers, games, setGames } = useContext(UsersContext)
 
     //Checks to see if there's a user already present
 
     useEffect(() => {
         socket.on("users", users => {
             setUsers(users)
+        })
+        socket.on("games", games => {
+            setGames(games)
         })
     })
 

@@ -8,11 +8,11 @@ import { UsersContext } from '../../usersContext'
 import * as THREE from "three";
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { Socket } from "socket.io-client";
-
+import Pong from './pong'
 
 const Scene = () => {
     const ref = useRef();
-    const { users } = useContext(UsersContext)
+    const { users, games, setUsers, setGames } = useContext(UsersContext)
     const { name, room, setName, setRoom } = useContext(MainContext)
     const [scene, setScene] = useState(new THREE.Scene())
     const [players, setPlayers] = useState({});
@@ -51,8 +51,10 @@ const Scene = () => {
         renderer.setSize(850, 500);
 
         ref.current.appendChild(renderer.domElement);
+        const Game = new Pong(scene);
         
-
+        
+        console.log(Game)
         camera.position.z = 5;
         if (objects === null) {
             objects = createPong(users);
@@ -90,16 +92,21 @@ const Scene = () => {
         socket.on("selectPlayer", (obj) => {
             // selections.push(obj.selected)
             // document.getElementById(obj.selected).style.display = "none"
+            
             if(player1Name === "Player 1" && obj.user.selected === "player1"){
                 setName1(obj.user.name)
             }
+           
             console.log(obj.user.selected)
             if(player2Name === "Player 2" && obj.user.selected === "player2"){
                 setName2(obj.user.name)
                 computer = false;
             }
-         
+            
             console.log(obj.selected)
+            if (obj.user.selected === "full") {
+                return;
+            }
             if(obj.user.name != name){
                 return;
             }
@@ -121,8 +128,12 @@ const Scene = () => {
             // if(user.selected){
             //     return;
             // }
-            console.log("hey")
             
+            console.log("hey")
+            let game = games[room]
+            if (game != undefined && game.status) {
+                return;
+            }
             socket.emit('playerSelected', user.id)
             
 
@@ -136,6 +147,9 @@ const Scene = () => {
                 scene.add(player)
             }
         })
+        Game.addSphere()
+        // scene.add()
+        console.log(scene)
         // socket.on("playerAdded", () => {
         //     if(users.length === 0){
         //         return;
@@ -155,10 +169,12 @@ const Scene = () => {
             
         // })
         socket.on("startGame", () => {
-            
+            console.log(games)
             document.getElementById("start-game").style.display = "none"
             console.log("STARTING")
-            
+            if(computer === true){
+                setName2("Computer")
+            }
             start = true;
         })
         console.log(start)

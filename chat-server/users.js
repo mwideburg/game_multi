@@ -1,5 +1,5 @@
 const users = []
-
+const games = []
 
 const addUser = (id, name, room, position, selected) => {
     const existingUser = users.find(user => user.name.trim().toLowerCase() === name.trim().toLowerCase())
@@ -42,6 +42,7 @@ const selectedPlayer = (id) => {
         return { selected: user.selected, user: user };
     }
     if(player === "full"){
+        user.selected = player
         console.log("hey")
         return { selected: user.selected, user: user };
     }
@@ -63,6 +64,24 @@ const getUser = id => {
     return user
 }
 
+const getGame = (room) => {
+    
+
+    let game = games.find(game => game.room == room)
+    if(game != undefined){
+        return game;
+    }
+    console.log("making a game")
+    game = {room: room, status: false}
+    games.push(game)
+    return [game]
+}
+const setGame = (room) => {
+    let game = games.find(game => game.room === room)
+    games.status = true
+    return game
+}
+
 const deleteUser = (id) => {
     const index = users.findIndex((user) => user.id === id);
     if (index !== -1) return users.splice(index, 1)[0];
@@ -71,4 +90,4 @@ const deleteUser = (id) => {
 const getUsers = (room) => users.filter(user => user.room === room)
 // const getGame = (room) => games.filter(game => room.game === room)
 
-module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer }
+module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame }
