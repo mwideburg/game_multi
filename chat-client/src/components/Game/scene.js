@@ -8,7 +8,7 @@ import { UsersContext } from '../../usersContext'
 import * as THREE from "three";
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { Socket } from "socket.io-client";
-import Pong from './pong'
+
 
 const Scene = () => {
     const ref = useRef();
@@ -17,8 +17,6 @@ const Scene = () => {
     const [scene, setScene] = useState(new THREE.Scene())
     const [players, setPlayers] = useState({});
     const socket = useContext(SocketContext)
-    const [keyDown, setKeyDown] = useState(0);
-    const [keyPress, setKeyPress] = useState(0);
     const[player1Name, setName1] = useState("Player 1")
     const[player2Name, setName2] = useState("Player 2")
 
@@ -51,10 +49,10 @@ const Scene = () => {
         renderer.setSize(850, 500);
 
         ref.current.appendChild(renderer.domElement);
-        const Game = new Pong(scene);
+       
         
         
-        console.log(Game)
+       
         camera.position.z = 5;
         if (objects === null) {
             objects = createPong(users);
@@ -147,7 +145,7 @@ const Scene = () => {
                 scene.add(player)
             }
         })
-        Game.addSphere()
+      
         // scene.add()
         console.log(scene)
         // socket.on("playerAdded", () => {
