@@ -13,20 +13,22 @@ import { Socket } from "socket.io-client";
 const Scene = () => {
     const ref = useRef();
     const { users, games, setUsers, setGames } = useContext(UsersContext)
-    const { name, room, setName, setRoom } = useContext(MainContext)
+    const { name, room, game, setName, setRoom, setGame } = useContext(MainContext)
     const [scene, setScene] = useState(new THREE.Scene())
     const [players, setPlayers] = useState({});
     const socket = useContext(SocketContext)
-    const[player1Name, setName1] = useState("Player 1")
-    const[player2Name, setName2] = useState("Player 2")
+    const[player1Name, setName1] = useState(game.player1)
+    const[player2Name, setName2] = useState(game.player2)
 
-    
-
+    const history = useHistory()
+    useEffect(() => { if (!name) return history.push('/') }, [history, game])
     const [pressedKeys, setPressedKeys] = useState([]);
 
     const ALLOWED_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
         
     useEffect(() => {
+       
+        
         let objects = null;
         let moveForward = false;
         let moveBackward = false;
@@ -38,6 +40,7 @@ const Scene = () => {
         const velocity = new THREE.Vector3();
         const direction = new THREE.Vector3();
         let selections = "player1";
+        var ballDirX = 1, ballDirY = 1, ballSpeed = .1;
 
         const camera = new THREE.PerspectiveCamera(
             75,
@@ -55,84 +58,73 @@ const Scene = () => {
        
         camera.position.z = 5;
         if (objects === null) {
-            objects = createPong(users);
+            objects = createPong();
         }
 
         
-        socket.on('movePlayers', (newUsers) => {
-            
-            if (newUsers.length === 0) {
-                return;
-            }
-            newUsers.forEach(user => {
-                
-                if (user.position != undefined && objects[user.selected] != undefined){
-                    // update player position
-                    objects[user.selected].position.set(user.position[0], user.position[1], user.position[2])
-                    if(user.ball != undefined && objects["ball"] != undefined){
-                        // update ball position
-                        let newBall = makeBall([user.ball[0], user.ball[1], user.ball[2]])
-                        scene.remove(objects["ball"])
-                        objects["ball"] = newBall
-                        scene.add(newBall)
-                        
+        socket.on('movePlayers', (positions) => {
 
-                    }
-                }
-                
-            })
+            
+           
+            objects["player2"].position.set(...positions.player2)
+            
+            if(positions.ball === undefined ){
+                return
+            }
+            if(selected != "player1"){
+                objects["player1"].position.set(...positions.player1)
+                let newBall = makeBall(...positions.ball)
+                scene.remove(objects["ball"])
+                objects["ball"] = newBall
+
+                scene.add(newBall)
+
+                ballDirY = positions.ballDirY
+                ballDirX = positions.ballDirX
+                ballSpeed = positions.ballSpeed
+            }
 
 
         })
         let controls = null;
         let selected = null;
-        let computer = true;
-        socket.on("selectPlayer", (obj) => {
-            // selections.push(obj.selected)
-            // document.getElementById(obj.selected).style.display = "none"
-            
-            if(player1Name === "Player 1" && obj.user.selected === "player1"){
-                setName1(obj.user.name)
-            }
-           
-            console.log(obj.user.selected)
-            if(player2Name === "Player 2" && obj.user.selected === "player2"){
-                setName2(obj.user.name)
-                computer = false;
-            }
-            
-            console.log(obj.selected)
-            if (obj.user.selected === "full") {
-                return;
-            }
-            if(obj.user.name != name){
-                return;
-            }
-                selected = obj.selected
-                
-
-                console.log("selecting controls")
-                
-                
-                controls = new PointerLockControls(objects[obj.selected], renderer.domElement);
-
-                scene.add(controls.getObject());
-                window.addEventListener('keydown', onKeyDown);
-                window.addEventListener('keyup', onKeyUp);
-            
-        })
+        let computer = false;
+  
         socket.on("playerAdded", user => {
-            console.log(user)
-            // if(user.selected){
-            //     return;
-            // }
-            
-            console.log("hey")
-            let game = games[room]
-            if (game != undefined && game.status) {
+         
+            if(games.status){
+                
                 return;
             }
-            socket.emit('playerSelected', user.id)
+
+            if (user.selected === "player2") {
+                computer = false
+            }
+            
+            if (user.selected === "full") {
+                
+                return;
+            }
+            if (user.name != name) {
+                
+                return;
+            }
+            
+            selected = user.selected
+            
+            
+            if(user.selected === "player1"){
+                computer = true
+            }
+            
+
+            controls = new PointerLockControls(objects[user.selected], renderer.domElement);
+            scene.add(controls.getObject());
+            
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keyup', onKeyUp);
+
+            
             
 
             
@@ -140,42 +132,28 @@ const Scene = () => {
         })
 
         Object.keys(objects).forEach((key) => {
-            if(key != "ball"){
-                let player = objects[key]
-                scene.add(player)
-            }
+                
+                    let player = objects[key]
+                    scene.add(player)
+                
+                
+            
         })
       
-        // scene.add()
-        console.log(scene)
-        // socket.on("playerAdded", () => {
-        //     if(users.length === 0){
-        //         return;
-        //     }
-        //     console.log("hey")
-        //     if(selections === "full"){
-        //         return;
-        //     }
-        //     if(selections === "player1"){
-        //         selectPlayer("player1");
-        //         selections =  "player2";
-        //     }
-        //     if (selections === "player2"){
-        //         selectPlayer(selections)
-        //         selections = "full"
-        //     }
+       
+
+        socket.on("startGame", (game) => {
             
-        // })
-        socket.on("startGame", () => {
-            console.log(games)
+           
             document.getElementById("start-game").style.display = "none"
-            console.log("STARTING")
+           
             if(computer === true){
                 setName2("Computer")
             }
+            
             start = true;
         })
-        console.log(start)
+      
         
         const onKeyDown = function (event) {
 
@@ -246,7 +224,7 @@ const Scene = () => {
             let dir = 0
        
             
-            // console.log(player2.position)
+          
             
             if(ballDirX < 0){
                 return;
@@ -261,9 +239,10 @@ const Scene = () => {
            
 
             player2.translateY(dir);
+            socket.emit("move", {id: socket.id, room: room, computer: true, selected: "player2", position: [player2.position.x, player2.position.y, player2.position.z], ball: "computer"})
         }
         const collisionCheck = (ball) => {
-            // console.log(ball)
+            
             
             if (ballDirY > ballSpeed * 2) {
                 ballDirY = ballSpeed * 2;
@@ -307,7 +286,7 @@ const Scene = () => {
             
             
         }
-        var ballDirX = 1, ballDirY = 1, ballSpeed = .1;
+        
         
         const animate = function () {
             requestAnimationFrame(animate);
@@ -318,30 +297,39 @@ const Scene = () => {
                 let dir = 0
                 if (moveForward) {
                     if (controls.getObject().position.y < 3.3) {
-                        dir = .13
+                        dir = .1
                     }
 
                 }
 
                 if (moveBackward) {
                     if (controls.getObject().position.y > -3.3) {
-                        dir = -.13
+                        dir = -.1
                     }
                 }
                 
                 controls.getObject().position.y += (dir); // new behavior
                 
                 const play = objects[selected]
+                
+                
                 const ball = objects["ball"]
                 if (computer) {
-                    // console.log(objects["player2"])
+           
                     moveComputer(objects["player2"], ball, delta);
                 }
-               
-                collisionCheck(ball)
+                if (selected === "player1") {
+
+                    collisionCheck(objects["ball"])
+                }
                 
-                // ball.set.position(newPos.x, newPos.y, newPos.z)
-                socket.emit('move', { position: [play.position.x, play.position.y, play.position.z,], id: socket.id, name: name, ball: ball.position });
+                if(selected === "player1"){
+                    socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
+                }else{
+
+                    socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name});
+                }
+
 
                 prevTime = time;
 
@@ -375,38 +363,31 @@ const Scene = () => {
         newPlayers["player2"] = play2
         newPlayers["ball"] = ball
         
-        Object.keys(users).forEach(user => {
-            if(user.selected != undefined){
-                let newObject = newPlayers[user.selected]
-                
-                newObject.position.set(user.position[0], user.position[1], user.position[2])
-                newPlayers[user.selected] = newObject
-            }
-        })
+
         setPlayers(newPlayers)
         
-        // console.log(players)
+       
         return newPlayers
     }
 
-    const makeBall = (position) => {
+    const makeBall = (x, y, z) => {
         var sphere = new THREE.CircleGeometry(.12, 32);
         var material = new THREE.MeshBasicMaterial({ color: "white" });
         let ball = new THREE.Mesh(sphere, material);
-        ball.position.set(position[0], position[1], position[2])
+        ball.position.set(x, y, z)
        return ball
     }
 
     const startGame = () => {
+        
         socket.emit("start")
         
     }
     const selectPlayer = (selected) => {
-        // setVelocity(.2);
-        // console.log(selected)
-        console.log(users)
+    
+       
         const user = users.find(user => user.name === name)
-        console.log(user)
+      
         if(user.selected != null){
             return;
         }
@@ -430,12 +411,27 @@ const Scene = () => {
             
             <Flex justifyContent="space-around" width="100%" height="100px">
                 
-                <Button id="player1" onClick={() => selectPlayer("player1")}>{player1Name}</Button>
+                <Button id="player1" onClick={() => selectPlayer("player1")}>
+                    {
+                        games && games.map(game => {
+                            return (
+                                game.player1Name
+                            )
+                        })
+                    }
+                </Button>
                 <Button id="start-game" onClick={() => startGame()}> Start</Button>
-                <Button id="player2" onClick={() => selectPlayer("player2")}>{player2Name}</Button>
+                <Button id="player2" onClick={() => selectPlayer("player2")}>
+                    {
+                        games && games.map(game => {
+                            return (
+                                game.player2Name
+                            )
+                        })
+                    }
+                </Button>
             </Flex>
-            
-            
+
             <div ref={ref} />
 
         </Flex>

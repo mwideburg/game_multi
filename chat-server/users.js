@@ -1,5 +1,5 @@
 const users = []
-const games = []
+let games = []
 
 const addUser = (id, name, room, position, selected) => {
     const existingUser = users.find(user => user.name.trim().toLowerCase() === name.trim().toLowerCase())
@@ -9,26 +9,68 @@ const addUser = (id, name, room, position, selected) => {
     if (!name) return { error: "Username is required" }
     if (!room) return { error: "Room is required" }
     
-    const user = { id, name, room, position: undefined, selected: "none", ball: null}
+    
+    const user = { id, name, room, position: undefined, selected: "none", ball: null }
+    
+    
     users.push(user)
+    const game = getGame(room, id, user)
+    game.ids.push(id)
+    user.game = game
+    if(game.status === false){
+        selectedPlayer(user.id)
+    }
+    if(user.selected === "player2"){
+        game.player2Name = user.name
+    }
+
+    
+    
+    
     return { user }
 }
 
-const updatePosition = (position, id, ball) => {
+const updatePosition = (position, id, ball, selected) => {
+    if( ball === "computer"){
+        const user = users.find(user => user.id === id)
+        const game = getGame(user.room, user.id, user)
+        
+        game.player2 = position
+        return game
+    }
     const user = users.find(user => user.id === id)
+    const game = getGame(user.room, user.id, user)
+   
+    if(selected === "player1"){
+        game.player1 = position
+    }else if(selected === "player2"){
+        game.player2 = position
+    }
     user.position = position
   
     if(ball != undefined){
-        user.ball = [ball.x, ball.y, ball.z]
+        let bool = true
+        ball.forEach(ele => {
+            if (ele === null){
+                bool = false
+            }
+        })
+        if(bool){
+            
+            game.ball = ball
+        }
     }
     
-    return {user}
+    return {user, game}
 }
 const selectedPlayer = (id) => {
-    console.log("EEHIWHELWJB")
+
     let user = users.find(user => user.id == id )
+    if (user.selected != "none") {
+        return { selected: user.selected, user: user };
+    }
     let roomUsers = getUsers(user.room)
-    console.log(roomUsers)
+
     let player = "player1"
     roomUsers.forEach(u => {
         
@@ -38,12 +80,10 @@ const selectedPlayer = (id) => {
             player = "full"
         }
     })
-    if(user.selected != "none"){
-        return { selected: user.selected, user: user };
-    }
+    
     if(player === "full"){
         user.selected = player
-        console.log("hey")
+      
         return { selected: user.selected, user: user };
     }
     
@@ -56,7 +96,7 @@ const selectedPlayer = (id) => {
         user.position = [5, 0, 0]
         
     }
-    console.log(player)
+    
     return { selected: user.selected, user: user }
 }
 const getUser = id => {
@@ -64,30 +104,94 @@ const getUser = id => {
     return user
 }
 
-const getGame = (room) => {
+const getGame = (room, id, user) => {
     
 
     let game = games.find(game => game.room == room)
+    const gIdx = games.findIndex((game) => game.room === room)
+
+    
+    
     if(game != undefined){
         return game;
     }
-    console.log("making a game")
-    game = {room: room, status: false}
+
+    game = {room: room, 
+        status: false, ids: [], 
+        player1Name: user.name, 
+        player2Name: "Player 2", 
+        player1: [-5, 0, 0], 
+        player2:[5, 0, 0], 
+        ball: [0, 0, 0],
+        ballSpeed: .1,
+        ballDirY: 1,
+        ballDirX: 1
+    }
+    
     games.push(game)
-    return [game]
+    return game
 }
 const setGame = (room) => {
+    
     let game = games.find(game => game.room === room)
-    games.status = true
+    game.status = true
+ 
     return game
 }
 
 const deleteUser = (id) => {
+  
     const index = users.findIndex((user) => user.id === id);
+
+
+    let gIdx = -1
+    if (users.length === 0) {
+        games = []
+        return;
+    }
+
+    for(let i = 0; i < games.length; i++){
+  
+        let game = games[i]
+        
+        game.ids.forEach(uid => {
+            let j = 0
+            if(uid === id){
+              
+                gIdx = i
+                let userIdx = users.findIndex((user) => user.id === id);
+                if(users[userIdx].selected === "player2"){
+                    games[i].player2 = "Player 2"
+                }
+                if(users[userIdx].selected === "player1"){
+                    games[i].player2 = "Player 1"
+                }
+                if(games[i].ids.length === 1){
+                    
+                    games[i].ids = []
+                }else{
+                   
+                    games[i].ids = game.ids.splice(j + 1, 1)
+                    
+
+                }
+                
+                return;
+            }
+            j += 1
+        })
+        i += 1
+    }
+
+    if (gIdx !== -1 && games[gIdx].ids.length === 0) games.splice(gIdx, 1)[0];
+    
     if (index !== -1) return users.splice(index, 1)[0];
 }
+const deleteGame = (user) => {
+    
 
+}
 const getUsers = (room) => users.filter(user => user.room === room)
-// const getGame = (room) => games.filter(game => room.game === room)
+const getGames = (room) => games.filter(game => game.room === room)
 
-module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame }
+module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames }

@@ -5,7 +5,7 @@ import { render } from "react-dom";
 class Pong extends React.Component{
     constructor(scene){
         super(scene)
-        console.log(scene)
+      
         //camera
         const camera = new THREE.PerspectiveCamera(
             75,
@@ -132,7 +132,7 @@ class Pong extends React.Component{
             requestAnimationFrame(this.animate);
             let dir = 0
         if (moveForward) {
-            console.log("FORWARD")
+           
             if (this.state.objects["player1"].position.y < 3.3) {
                 dir = .13
             }

@@ -22,16 +22,13 @@ const Scene2 = () => {
         
         ref.current.appendChild(Game.state.renderer.domElement);
         Game.addObjects()
-        // Game.addControls({selected: "player1"});
-        // console.log(Game.state.objects["player1"])
-        // let controls = new PointerLockControls(Game.state.objects["player1"], Game.state.renderer.domElement);
-        // Game.state.scene.add(controls.getObject());
+
         let moveForward = false;
         let moveBackward = false;
         
 
         const onKeyDown = (event) => {
-            console.log(event.code)
+       
             switch (event.code) {
 
                 case 'ArrowUp':
