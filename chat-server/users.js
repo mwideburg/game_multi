@@ -125,10 +125,22 @@ const getGame = (room, id, user) => {
         ball: [0, 0, 0],
         ballSpeed: .1,
         ballDirY: 1,
-        ballDirX: 1
+        ballDirX: 1,
+        score: [0, 0]
     }
     
     games.push(game)
+    return game
+}
+
+const addScore = (room, player) => {
+    const game = getGame(room)
+    if(player === "player1"){
+        game.score[0] += 1
+    }else{
+        game.score[1] += 1
+    }
+
     return game
 }
 const setGame = (room) => {
@@ -194,4 +206,4 @@ const deleteGame = (user) => {
 const getUsers = (room) => users.filter(user => user.room === room)
 const getGames = (room) => games.filter(game => game.room === room)
 
-module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames }
+module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore }

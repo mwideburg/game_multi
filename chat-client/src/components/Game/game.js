@@ -16,24 +16,12 @@ function Game() {
     const { users } = useContext(UsersContext)
     const socket = useContext(SocketContext)
     const scene = Scene();
-
-    // const [scene, setScene] = useState(new Scene())
-    // useEffect(() =>{
-       
-    //     users && users.forEach(user => {
-    //         if(user.game === undefined){
-    //             socket.on('addGame', {room, scene})
-    //         }else{
-    //             setScene(user.game)
-    //         }
-            
-    //     })
-    // })
-    
+    const history = useHistory()
+    useEffect(() => { if (!name) return history.push('/') }, [history, name])
     return (
-        <Flex align="center" flexDirection="row" width={{ base: "100%" }} height={{ base: "100%", sm: "auto" }}>
+        <Flex className="game" align="center" flexDirection="row" width={{ base: "100%" }} height={{ base: "100%", sm: "auto" }}>
             {scene} 
-            <Chat />
+            {/* <Chat /> */}
         </Flex>
 
     )

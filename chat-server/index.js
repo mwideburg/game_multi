@@ -3,7 +3,7 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames } = require('./users')
+const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
 
 app.use(cors())
@@ -39,6 +39,7 @@ io.on('connection', (socket) => {
         
         io.in(user.room).emit('player', { user: user.name, object: object} )
     })
+
     socket.on('start', () => {
         
         let user = getUser(socket.id)
@@ -80,6 +81,12 @@ io.on('connection', (socket) => {
         // updatePosition(user.position, user.id)
 
         io.in(user.room).emit('selectPlayer', {selected: obj.selected, user: obj.user})
+    })
+
+    socket.on('playerScored', (object) => {
+        addScore(object.room, object.player)
+        const games = getGames(object.room)
+        io.in(object.room).emit("games",  games)
     })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)
