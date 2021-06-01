@@ -74,7 +74,7 @@ const Scene = () => {
 
             
            
-            objects["player2"].position.set(...positions.player2)
+            objects["player2"].position.set(5, positions.player2[1], 0)
             
             if(positions.ball === undefined ){
                 return
@@ -99,10 +99,20 @@ const Scene = () => {
         let computer = false;
   
         socket.on("playerAdded", user => {
-         
-            if (games.status || user.selected === "full" || user.name != name) return;
-            if (user.selected === "player2") computer = false
-            if (user.selected === "player1") computer = true
+            console.log(user)
+            if (game.status || user.selected === "full" ){
+                return;
+            } 
+            if (user.selected === "player1"){
+                computer = true
+                console.log("player 1 computer true")
+            } 
+            if (user.selected === "player2") {
+                console.log("player 2 computer false")
+                computer = false
+            }
+
+            if(user.name != name) return;
 
             selected = user.selected
             controls = new PointerLockControls(objects[user.selected], renderer.domElement);
@@ -154,23 +164,32 @@ const Scene = () => {
             }
 
         };
-        let computerSpeed = .1
-        
+        let computerSpeed = 7.7
+        let dir = 0
         const moveComputer = (player2, ball, delta) => {
-            let dir = 0
             
-            // if (player2.position.y > ball.position.y && player2.position.y > bottomWall + .475){
-            //     dir -= .06
-            // }
-            // if (player2.position.y < ball.position.y && player2.position.y < topWall - .475) {
-            //     dir += .06
-            // }
-            if (ball.position.y < topWall && ball.position.y > bottomWall) {
-                player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), computerSpeed);
+            // console.log("computer")
+            if(dir > computerSpeed * 2){
+                dir = 0
             }
-
-            player2.translateY(dir)
-            socket.emit("move", {id: socket.id, room: room, computer: true, selected: "player2", position: [player2.position.x, player2.position.y, player2.position.z], ball: "computer"})
+            if (dir < computerSpeed * 2) {
+                dir = 0
+            }
+            if (player2.position.y > ball.position.y){
+                
+                dir -= .4
+            }
+            if (player2.position.y < ball.position.y) {
+                
+                dir += .4
+            }
+            // if (ball.position.y < topWall && ball.position.y > bottomWall) {
+            //     player2.position.lerp(new THREE.Vector3(5, ball.position.y, 0), .4 );
+            // }
+            
+            player2.position.lerp(new THREE.Vector3(5, ball.position.y, 0), (computerSpeed * delta))
+            // objects["player2"].translateY(dir)
+            socket.emit("move", {id: socket.id, room: room, computer: true, selected: "player2", position: [5, player2.position.y, 0], ball: "computer"})
         }
 
         const collisionCheck = (ball) => {
@@ -204,7 +223,7 @@ const Scene = () => {
                         // ballDirY = -ballDirY;
 
                     }
-                    ballSpeed += .15
+                    ballSpeed += .149
                 }
             })
             if (ballDirY > ballSpeed * 2) {
@@ -281,7 +300,7 @@ const Scene = () => {
                 
                 const play = objects[selected]
                 const ball = objects["ball"]
-                if (computer) {
+                if (computer === true) {
                     moveComputer(objects["player2"], ball, delta);
                 }
                 if (selected === "player1") {
@@ -362,28 +381,33 @@ const Scene = () => {
     return (
         
         <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
-            
-            <Flex justifyContent="space-around" width="100%" height="100px">
+            <Heading as="h3" color="black" size="2xl" textAlign='center' mb='8' fontFamily='DM Sans' fontWeight='100' letterSpacing='-2px'>
                 
-                <Button id="player1">
-                    {
-                        games && games.map(game => {
-                            return (
-                                game.player1Name
-                            )
-                        })
-                    }
-                </Button>
+                <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
+            </Heading>
+            <Flex justifyContent="center" width="800px" height="100%">
                 <Button id="start-game" onClick={() => startGame()}> Start</Button>
-                <Button id="player2">
+            </Flex>
+            <Flex justifyContent="space-between" width="800px" height="100%">
+                <Text id="player1" fontSize="2xl" color="black" fontWeight='600'>
                     {
                         games && games.map(game => {
                             return (
-                                game.player2Name
+                                game.player1Name.slice(0, 1).toUpperCase() + game.player1Name.slice(1)
                             )
                         })
                     }
-                </Button>
+                </Text>
+                
+                <Text id="player2" fontSize="2xl" color="black" fontWeight='600'>
+                    {
+                        games && games.map(game => {
+                            return (
+                                game.player2Name.slice(0, 1).toUpperCase() + game.player2Name.slice(1)
+                            )
+                        })
+                    }
+                </Text>
             </Flex>
             {
                 games && games.map(game => {
@@ -391,7 +415,7 @@ const Scene = () => {
                     let score2 = game.score[1]
                     return (
                         <div id="score" key={game.room}>
-                        {score1} : {score2}
+                        <Text fontSize="2xl">{score1} : {score2}</Text>
                         </div>
                     )
                 })

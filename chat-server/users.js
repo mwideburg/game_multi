@@ -18,7 +18,10 @@ const addUser = (id, name, room, position, selected) => {
     game.ids.push(id)
     user.game = game
     if(game.status === false){
+        console.log("selected player")
+        
         selectedPlayer(user.id)
+        console.log(user.selected)
     }
     if(user.selected === "player2"){
         game.player2Name = user.name
