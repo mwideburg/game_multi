@@ -37,10 +37,8 @@ const Scene = () => {
     const[player2Name, setName2] = useState(game.player2)
     const { isOpen, onOpen, onClose } = useDisclosure();
     const history = useHistory()
-    let score1 = 0
-    let score2 = 0
-    let computerSpeed = 7.7
-    let dir = 0
+    
+    window.onpopstate = e => logout()
     useEffect(() => { if (!name) return history.push('/') }, [history, name])
     const [pressedKeys, setPressedKeys] = useState([]);
 
@@ -71,6 +69,12 @@ const Scene = () => {
             0.1,
             1000
         );
+        let score1 = 0
+        let score2 = 0
+        let computerSpeed = 7.7
+        let dir = 0
+
+
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(850, 500);
 
@@ -126,13 +130,13 @@ const Scene = () => {
         })
   
         socket.on("playerAdded", user => {
-            console.log(user)
+           
             if (game.status || user.selected === "none" ){
                 return;
             } 
             if (user.selected === "player1"){
                 computer = true
-                console.log("player 1 computer true")
+               
             } 
             if (user.selected === "player2") {
                 console.log("player 2 computer false")
@@ -151,33 +155,27 @@ const Scene = () => {
         addObjects(objects)
         
         socket.on("startGame", (game) => {
-            console.log(game)
+            
             document.getElementById("start-game").style.display = "none"
-            ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-            console.log(game)
-            if(game.score[0] != 0 || game.score[1] != 0){
-                console.log("resetting")
-                resetGame()
-                return;
-            }
-            score1 = game.score[0]
-            score2 = game.score[1]
-            ballSpeed = .1
+            
             start = true;
+            
+            
+            
         })
 
         socket.on("playerLeft", (user) => {
             if(user.selected === "player2" || user.selected === "player1"){
                 computer = true
             }
-            console.log("player left")
-            console.log(computer)
+           
+            
         })
         
         socket.on("newScores", game => {
             score1 = game.score[0]
             score2 = game.score[1]
-            console.log("helllo")
+            
             if (score1 === 10 || score2 === 10) {
                 
                 document.getElementById("start-game").style.display = "block"
@@ -201,15 +199,15 @@ const Scene = () => {
             }
         };
         socket.on('playAgain', () => {
-            console.log(selected)
+           
             if(selected === "none"){
-                console.log(selected)
+               
                 return;
             }
             score1 = 0
             score2 = 0
+            onClose()
             
-            console.log(computer)
             objects["player1"].position.set(-5, 0, 0)
             objects["player2"].position.set(5, 0, 0)
             ballSpeed = .1
@@ -238,7 +236,7 @@ const Scene = () => {
         
         const moveComputer = (player2, ball, delta) => {
             
-            // console.log("computer")
+           
             if(dir > computerSpeed * 2){
                 dir = 0
             }
@@ -253,12 +251,9 @@ const Scene = () => {
                 
                 dir += .4
             }
-            // if (ball.position.y < topWall && ball.position.y > bottomWall) {
-            //     player2.position.lerp(new THREE.Vector3(5, ball.position.y, 0), .4 );
-            // }
-            
+
             player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), (computerSpeed * delta))
-            // objects["player2"].translateY(dir)
+
             const comp = (selected === "player1") ? "player2" : "player1"
             socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
         }
@@ -502,10 +497,10 @@ const Scene = () => {
 
                     <ModalFooter justifyContent="space-around">
                         <Button variantColor="blue" mr={3} onClick={resetGame}>
-                        Play Again
+                            Play Again
                         </Button>
                         <Button variantColor="blue" mr={3} onClick={onClose}>
-                        Close
+                            Close
                         </Button>
                         
                     </ModalFooter>

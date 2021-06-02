@@ -212,14 +212,16 @@ const deleteUser = (id) => {
 const resetGame = (room) => {
     console.log('reset-game')
     const gIdx = games.findIndex((g) => g.room === room)
+    if(gIdx != -1){
+            games[gIdx].player1 = [-5, 0, 0],
+            games[gIdx].player2 = [5, 0, 0],
+            games[gIdx].ball = [0, 0, 0],
+            games[gIdx].ballSpeed = .1,
+            games[gIdx].ballDirY = 1,
+            games[gIdx].ballDirX = 1,
+            games[gIdx].score = [0, 0]
+    }
     
-    games[gIdx].player1 = [-5, 0, 0], 
-    games[gIdx].player2 =[5, 0, 0], 
-    games[gIdx].ball = [0, 0, 0],
-    games[gIdx].ballSpeed = .1,
-    games[gIdx].ballDirY = 1,
-    games[gIdx].ballDirX = 1,
-    games[gIdx].score = [0, 0]
     return games
     
 }

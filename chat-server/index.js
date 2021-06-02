@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
             io.in(user.room).emit('movePlayers', comPos)
             return;
         }
-        
+       
         const user = getUser(object.id);
         const gamePos = updatePosition(object.position, user.id, object.ball, object.selected, object.ballSpeed, object.ballDirY, object.ballDirX)
       
@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
         const game = getGame(room)
         io.in(room).emit('games', games)
         io.in(room).emit('playAgain')
-        io.in(room).emit('startGame', game)
+        // io.in(room).emit('startGame', game)
     })
     socket.on("disconnect", () => {
         console.log("User disconnected");

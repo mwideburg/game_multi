@@ -38,6 +38,11 @@ function Game() {
             }
         })
     }, [socket, toast])
+    const logout = () => {
+        setName(''); setRoom('');
+        history.push('/')
+        history.go(0)
+    }
 
     return (
         <>
