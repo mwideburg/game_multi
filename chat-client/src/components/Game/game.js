@@ -18,11 +18,22 @@ function Game() {
     const scene = Scene();
     const history = useHistory()
     useEffect(() => { if (!name) return history.push('/') }, [history, name])
+    const logout = () => {
+        setName(''); setRoom('');
+        history.push('/')
+        history.go(0)
+    }
     return (
+        <>
+        <Flex justifyContent="flex-end" width="100%">
+        <Button color='gray.500' margin="10px" fontSize='sm' onClick={logout}>Logout</Button>
+
+        </Flex>
         <Flex className="game" align="center" flexDirection="row" width={{ base: "100%" }} height={{ base: "100%", sm: "auto" }}>
             {scene} 
             {/* <Chat /> */}
         </Flex>
+        </>
 
     )
 }

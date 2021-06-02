@@ -3,7 +3,7 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore } = require('./users')
+const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
 
 app.use(cors())
@@ -93,7 +93,11 @@ io.on('connection', (socket) => {
         io.in(user.room).emit('message', { user: user.name, text: message });
     })
 
-
+    socket.on('reset-game', room => {
+        const games = resetGame(room)
+        io.in(room).emit('games', games)
+        io.in(room).emit('playAgain')
+    })
     socket.on("disconnect", () => {
         console.log("User disconnected");
        

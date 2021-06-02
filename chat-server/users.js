@@ -202,6 +202,20 @@ const deleteUser = (id) => {
     
     if (index !== -1) return users.splice(index, 1)[0];
 }
+const resetGame = (room) => {
+    console.log('reset-game')
+    const gIdx = games.findIndex((g) => g.room === room)
+    games[gIdx].score = [0, 0]
+    games[gIdx].player1 = [-5, 0, 0], 
+    games[gIdx].player2 =[5, 0, 0], 
+    games[gIdx].ball = [0, 0, 0],
+    games[gIdx].ballSpeed = .1,
+    games[gIdx].ballDirY = 1,
+    games[gIdx].ballDirX = 1,
+    games[gIdx].score = [0, 0]
+    return games
+    
+}
 const deleteGame = (user) => {
     
 
@@ -209,4 +223,4 @@ const deleteGame = (user) => {
 const getUsers = (room) => users.filter(user => user.room === room)
 const getGames = (room) => games.filter(game => game.room === room)
 
-module.exports = { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore }
+module.exports = { addUser, getUser, resetGame, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore }

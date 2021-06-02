@@ -1,6 +1,20 @@
 import ReactDOM from "react-dom";
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { Box, Flex, Heading, IconButton, Text, Menu, Button, MenuButton, MenuList, MenuItem } from "@chakra-ui/react"
+import { 
+    Flex, 
+    Heading, 
+    Text,  
+    Button,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton, 
+    useDisclosure
+} from "@chakra-ui/react"
+
 import { useHistory } from 'react-router-dom'
 import { MainContext } from '../../mainContext'
 import { SocketContext } from '../../socketContext'
@@ -21,7 +35,7 @@ const Scene = () => {
     const socket = useContext(SocketContext)
     const[player1Name, setName1] = useState(game.player1)
     const[player2Name, setName2] = useState(game.player2)
-
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const history = useHistory()
     useEffect(() => { if (!name) return history.push('/') }, [history, name])
     const [pressedKeys, setPressedKeys] = useState([]);
@@ -59,11 +73,9 @@ const Scene = () => {
         ref.current.appendChild(renderer.domElement);
         camera.position.z = 5;
 
-        //make grid
         makeLine("green", [-5.6, 0, 0], [.1, 7.7, 0])
         makeLine("green", [5.6, 0, 0], [.1, 7.7, 0])
-        // makeLine("green", [0, -3.83, 0], [11.2, .1, 0])
-        // makeLine("green", [0, 3.83, 0], [11.2, .1, 0])
+
         const leftWall = -5.2
         const rightWall = 5.4
         const topWall = 3.7
@@ -144,7 +156,13 @@ const Scene = () => {
                     break;
             }
         };
-        
+        socket.on('playAgain', () => {
+            score1 = 0
+            score2 = 0
+            start = true
+            objects["player1"].position.set(-5, 0, 0)
+            objects["player2"].position.set(5, 0, 0)
+        })
 
         const onKeyUp = function (event) {
 
@@ -164,6 +182,8 @@ const Scene = () => {
             }
 
         };
+        let score1 = 0
+        let score2 = 0
         let computerSpeed = 7.7
         let dir = 0
         const moveComputer = (player2, ball, delta) => {
@@ -245,21 +265,18 @@ const Scene = () => {
                 if(computer){
                     computerSpeed += .005
                 }
+                score1 += 1
                 ball.position.set(0, 0, 0)
                 ballSpeed = 0
-                socket.emit("playerScored", {room: room, player: "player1"})
-                setTimeout(() => {
-                    ballSpeed = .1
-                    
-                    ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-                }, 300)
-            }
 
-            // if ball goes off the bottom side (side of table)
-            if (ball.position.x <= leftWall - .5) {
-                ball.position.set(0, 0, 0)
-                ballSpeed = 0
-                socket.emit("playerScored", { room: room, player: "player2" })
+                socket.emit("playerScored", {room: room, player: "player1"})
+                if (score1 === 10) {
+                    socket.emit("playerWon", { room: room, player: "player2" })
+                    start = false
+                    onOpen();
+                    return;
+                }
+                
                 setTimeout(() => {
                     ballSpeed = .1
                     
@@ -267,6 +284,27 @@ const Scene = () => {
                 }, 300)
             }
             
+            // if ball goes off the bottom side (side of table)
+            if (ball.position.x <= leftWall - .5) {
+                ball.position.set(0, 0, 0)
+                ballSpeed = 0
+                score2 += 1
+                socket.emit("playerScored", { room: room, player: "player2" })
+                if (score2 === 10) {
+                    socket.emit("playerWon", { room: room, player: "player2" })
+                    start = false
+                    onOpen();
+                    return;
+                }
+                setTimeout(() => {
+                    ballSpeed = .1
+                    
+                    ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
+                }, 300)
+            }
+
+            
+
             if (ballSpeed > .1) {
                 ballSpeed -= .0006
             }
@@ -328,7 +366,7 @@ const Scene = () => {
             // Callback to cleanup three js, cancel animationFrame, etc
         }
     }, []);
-
+    
     const makeLine = (color, pos, side) => {
         const geometry = new THREE.BoxGeometry(...side);
         const material = new THREE.MeshBasicMaterial({ color: color });
@@ -372,6 +410,11 @@ const Scene = () => {
         ball.position.set(x, y, z)
        return ball
     }
+    const resetGame = () => {
+        socket.emit('reset-game', room)
+        onClose()
+        
+    }
 
     const startGame = () => {
         socket.emit("start")
@@ -380,7 +423,43 @@ const Scene = () => {
 
     return (
         
+        
         <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent background="blue.300">
+                    <ModalHeader>
+                        
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Flex justifyContent="center">
+                     {
+                            games && games.map(game => {
+                                let score1 = game.score[0]
+                                let score2 = game.score[1]
+                                let winner = (score1 > score2) ? game.player1Name : game.player2Name
+                                return (
+                                    <div id="score" key={game.room}>
+                                        <Text fontSize="2xl">{winner.slice(0, 1).toUpperCase() + winner.slice(1)} WINS!</Text>
+                                    </div>
+                                )
+                            })
+                        }
+                        </Flex>
+                    </ModalBody>
+
+                    <ModalFooter justifyContent="space-around">
+                        <Button variantColor="blue" mr={3} onClick={resetGame}>
+                                        Play Again
+                        </Button>
+                        <Button variantColor="blue" mr={3} onClick={onClose}>
+                                        Close
+                        </Button>
+                        
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
             <Heading as="h3" color="black" size="2xl" textAlign='center' mb='8' fontFamily='DM Sans' fontWeight='100' letterSpacing='-2px'>
                 
                 <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
@@ -421,8 +500,9 @@ const Scene = () => {
                 })
             }
             <div ref={ref} className="pongDiv"/>
-
+            
         </Flex>
+       
 
     )
 }
