@@ -14,9 +14,9 @@ io.on('connection', (socket) => {
         
         if (error) return callback(error)
         socket.join(user.room)
-        socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
+        socket.in(room).emit('notification', {id: user.name, title: 'Someone\'s here', description: `${user.name} just entered the room` })
         io.in(room).emit('users', getUsers(room, socket.id))
-   
+        console.log("getUsers")
         const game = getGame(user.room, socket.id)
         const games = getGames(user.room, socket.id)
 
@@ -46,15 +46,17 @@ io.on('connection', (socket) => {
         let room = user.room;
         setGame(room)
         const games = getGames(user.room, socket.id)
+        const game = getGame(user.room)
         io.in(room).emit('game', getGame(user.room))
         io.in(room).emit('games', getGames(user.room))
         
-        io.in(user.room).emit('startGame')
+        io.in(user.room).emit('startGame', game)
     })
     socket.on('move', (object) => {
         if(object.ball === "computer"){
             const user = getUser(object.id);
-            let comPos = updatePosition(object.position, object.id, object.ball )
+            if(user === undefined) return;
+            let comPos = updatePosition(object.position, object.id, object.ball, object.selected )
             io.in(user.room).emit('movePlayers', comPos)
             return;
         }
@@ -84,8 +86,9 @@ io.on('connection', (socket) => {
     })
 
     socket.on('playerScored', (object) => {
-        addScore(object.room, object.player)
+        const game = addScore(object.room, object.player)
         const games = getGames(object.room)
+        io.in(object.room).emit("newScores", game)
         io.in(object.room).emit("games",  games)
     })
     socket.on('sendMessage', message => {
@@ -95,8 +98,10 @@ io.on('connection', (socket) => {
 
     socket.on('reset-game', room => {
         const games = resetGame(room)
+        const game = getGame(room)
         io.in(room).emit('games', games)
         io.in(room).emit('playAgain')
+        io.in(room).emit('startGame', game)
     })
     socket.on("disconnect", () => {
         console.log("User disconnected");
@@ -109,10 +114,13 @@ io.on('connection', (socket) => {
         const user = deleteUser(socket.id)
         
         if (user) {
-            io.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
+            io.in(user.room).emit('notification', {id: user.name, title: 'Someone just left', description: `${user.name} just left the room` })
             
             io.in(user.room).emit('users', getUsers(user.room))
-            
+            io.in(user.room).emit('games', getGames(user.room))
+            if(user.selected === "player1" || user.selected === "player2"){
+                io.in(user.room).emit("playerLeft", user)
+            }
             io.in(user.room).emit('deleteUser', user)
         }
         

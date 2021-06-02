@@ -425,11 +425,11 @@ const Scene = () => {
         
         
         <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent background="blue.300">
-                    <ModalHeader>
-                        
+            <Flex flexDirection="row" justifyContent="space-around" width="100%">
+            
+                <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
+                <a className="log-out" onClick={logout}>Logout</a>
+            
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>

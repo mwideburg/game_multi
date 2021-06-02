@@ -35,10 +35,15 @@ const addUser = (id, name, room, position, selected) => {
 
 const updatePosition = (position, id, ball, selected) => {
     if( ball === "computer"){
+        console.log(id)
+        console.log(ball)
+        console.log(selected)
+        console.log(position)
         const user = users.find(user => user.id === id)
+        if(user === undefined) return;
         const game = getGame(user.room, user.id, user)
+        game[selected] = position
         
-        game.player2 = position
         return game
     }
     const user = users.find(user => user.id === id)
@@ -143,7 +148,7 @@ const addScore = (room, player) => {
     }else{
         game.score[1] += 1
     }
-
+    
     return game
 }
 const setGame = (room) => {
@@ -176,14 +181,16 @@ const deleteUser = (id) => {
                 gIdx = i
                 let userIdx = users.findIndex((user) => user.id === id);
                 if(users[userIdx].selected === "player2"){
-                    games[i].player2 = "Player 2"
+                    games[i].player2Name = "Player 2"
                 }
                 if(users[userIdx].selected === "player1"){
-                    games[i].player2 = "Player 1"
+                    games[i].player1Name = "Player 1"
                 }
                 if(games[i].ids.length === 1){
                     
                     games[i].ids = []
+                    games[i].status = false
+
                 }else{
                    
                     games[i].ids = game.ids.splice(j + 1, 1)
@@ -205,7 +212,7 @@ const deleteUser = (id) => {
 const resetGame = (room) => {
     console.log('reset-game')
     const gIdx = games.findIndex((g) => g.room === room)
-    games[gIdx].score = [0, 0]
+    
     games[gIdx].player1 = [-5, 0, 0], 
     games[gIdx].player2 =[5, 0, 0], 
     games[gIdx].ball = [0, 0, 0],
