@@ -37,6 +37,10 @@ const Scene = () => {
     const[player2Name, setName2] = useState(game.player2)
     const { isOpen, onOpen, onClose } = useDisclosure();
     const history = useHistory()
+    let score1 = 0
+    let score2 = 0
+    let computerSpeed = 7.7
+    let dir = 0
     useEffect(() => { if (!name) return history.push('/') }, [history, name])
     const [pressedKeys, setPressedKeys] = useState([]);
 
@@ -83,36 +87,47 @@ const Scene = () => {
         let objects = createPong();
 
         socket.on('movePlayers', (positions) => {
-
             
-           
-            objects["player2"].position.set(5, positions.player2[1], 0)
+            
+           if(selected != "player2"){
+               objects["player2"].position.set(5, positions.player2[1], 0)
+           }
+           if(selected != "player1"){
+               objects["player1"].position.set(...positions.player1)
+           }
             
             if(positions.ball === undefined ){
                 return
             }
-            if(selected != "player1"){
-                objects["player1"].position.set(...positions.player1)
+            // if(selected != "player1" ){
+                
                 let newBall = makeBall(...positions.ball)
                 scene.remove(objects["ball"])
                 objects["ball"] = newBall
 
                 scene.add(newBall)
 
-                ballDirY = positions.ballDirY
-                ballDirX = positions.ballDirX
-                ballSpeed = positions.ballSpeed
-            }
-
+                // ballDirY = positions.ballDirY
+                // ballDirX = positions.ballDirX
+                // ballSpeed = positions.ballSpeed
+            // }
+            
 
         })
         let controls = null;
         let selected = null;
         let computer = false;
+        socket.on('games', () => {
+            if(game.player2Name === "Player 2"){
+                computer = true
+            }else if (game.player1Name === "Player 1") {
+                computer = true
+            }
+        })
   
         socket.on("playerAdded", user => {
             console.log(user)
-            if (game.status || user.selected === "full" ){
+            if (game.status || user.selected === "none" ){
                 return;
             } 
             if (user.selected === "player1"){
@@ -136,11 +151,40 @@ const Scene = () => {
         addObjects(objects)
         
         socket.on("startGame", (game) => {
+            console.log(game)
             document.getElementById("start-game").style.display = "none"
+            ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
+            console.log(game)
+            if(game.score[0] != 0 || game.score[1] != 0){
+                console.log("resetting")
+                resetGame()
+                return;
+            }
+            score1 = game.score[0]
+            score2 = game.score[1]
+            ballSpeed = .1
             start = true;
         })
+
+        socket.on("playerLeft", (user) => {
+            if(user.selected === "player2" || user.selected === "player1"){
+                computer = true
+            }
+            console.log("player left")
+            console.log(computer)
+        })
         
-        
+        socket.on("newScores", game => {
+            score1 = game.score[0]
+            score2 = game.score[1]
+            console.log("helllo")
+            if (score1 === 10 || score2 === 10) {
+                
+                document.getElementById("start-game").style.display = "block"
+                onOpen() 
+            }
+            
+        })
         const onKeyDown = function (event) {
             switch (event.code) {
                 case 'ArrowUp':
@@ -157,11 +201,20 @@ const Scene = () => {
             }
         };
         socket.on('playAgain', () => {
+            console.log(selected)
+            if(selected === "none"){
+                console.log(selected)
+                return;
+            }
             score1 = 0
             score2 = 0
-            start = true
+            
+            console.log(computer)
             objects["player1"].position.set(-5, 0, 0)
             objects["player2"].position.set(5, 0, 0)
+            ballSpeed = .1
+            ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
+           
         })
 
         const onKeyUp = function (event) {
@@ -182,10 +235,7 @@ const Scene = () => {
             }
 
         };
-        let score1 = 0
-        let score2 = 0
-        let computerSpeed = 7.7
-        let dir = 0
+        
         const moveComputer = (player2, ball, delta) => {
             
             // console.log("computer")
@@ -207,9 +257,10 @@ const Scene = () => {
             //     player2.position.lerp(new THREE.Vector3(5, ball.position.y, 0), .4 );
             // }
             
-            player2.position.lerp(new THREE.Vector3(5, ball.position.y, 0), (computerSpeed * delta))
+            player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), (computerSpeed * delta))
             // objects["player2"].translateY(dir)
-            socket.emit("move", {id: socket.id, room: room, computer: true, selected: "player2", position: [5, player2.position.y, 0], ball: "computer"})
+            const comp = (selected === "player1") ? "player2" : "player1"
+            socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
         }
 
         const collisionCheck = (ball) => {
@@ -262,9 +313,7 @@ const Scene = () => {
                 ballDirY = -ballDirY;
             }
             if (ball.position.x >= rightWall + .5) {
-                if(computer){
-                    computerSpeed += .005
-                }
+                
                 score1 += 1
                 ball.position.set(0, 0, 0)
                 ballSpeed = 0
@@ -339,13 +388,15 @@ const Scene = () => {
                 const play = objects[selected]
                 const ball = objects["ball"]
                 if (computer === true) {
-                    moveComputer(objects["player2"], ball, delta);
+                    const comp = (selected === "player1") ? "player2" : "player1"
+                    moveComputer(objects[comp], ball, delta);
                 }
-                if (selected === "player1") {
+                if (selected === "player1" || computer === true) {
+                    
                     collisionCheck(objects["ball"])
                 }
                 
-                if(selected === "player1"){
+                if(selected === "player1" || computer === true){
                     socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
                 }else{
 
@@ -419,17 +470,17 @@ const Scene = () => {
     const startGame = () => {
         socket.emit("start")
     }
-
+    const logout = () => {
+        setName(''); setRoom('');
+        history.push('/')
+        history.go(0)
+    }
 
     return (
-        
-        
-        <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
-            <Flex flexDirection="row" justifyContent="space-around" width="100%">
-            
-                <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
-                <a className="log-out" onClick={logout}>Logout</a>
-            
+        <>
+        <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalContent>
+                    <ModalHeader>
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
@@ -451,20 +502,23 @@ const Scene = () => {
 
                     <ModalFooter justifyContent="space-around">
                         <Button variantColor="blue" mr={3} onClick={resetGame}>
-                                        Play Again
+                        Play Again
                         </Button>
                         <Button variantColor="blue" mr={3} onClick={onClose}>
-                                        Close
+                        Close
                         </Button>
                         
                     </ModalFooter>
                 </ModalContent>
             </Modal>
-            <Heading as="h3" color="black" size="2xl" textAlign='center' mb='8' fontFamily='DM Sans' fontWeight='100' letterSpacing='-2px'>
-                
+        <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
+            <Flex flexDirection="row" justifyContent="space-around" width="100%">
+            
                 <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
-            </Heading>
-            <Flex justifyContent="center" width="800px" height="100%">
+                <a className="log-out" onClick={logout}>Logout</a>
+            </Flex>
+            
+            <Flex justifyContent="center" width="800px" height="60px">
                 <Button id="start-game" onClick={() => startGame()}> Start</Button>
             </Flex>
             <Flex justifyContent="space-between" width="800px" height="100%">
@@ -503,7 +557,7 @@ const Scene = () => {
             
         </Flex>
        
-
+    </>
     )
 }
 
