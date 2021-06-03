@@ -255,7 +255,7 @@ const Scene = () => {
             player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), (computerSpeed * delta))
 
             const comp = (selected === "player1") ? "player2" : "player1"
-            socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
+            // socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
         }
 
         const collisionCheck = (ball) => {
