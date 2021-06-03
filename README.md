@@ -1,1 +1,2 @@
-# game_multi
+# Multi Player Pong
+

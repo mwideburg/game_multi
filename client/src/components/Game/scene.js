@@ -71,7 +71,7 @@ const Scene = () => {
         );
         let score1 = 0
         let score2 = 0
-        let computerSpeed = 7.7
+        let computerSpeed = 7.6
         let dir = 0
 
 
