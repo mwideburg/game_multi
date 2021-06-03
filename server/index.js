@@ -2,7 +2,7 @@ const app = require('express')()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
-
+const path = require('path');
 const PORT = process.env.PORT || 5000
 const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
@@ -138,7 +138,12 @@ app.get('/', (req, res) => {
 
 // AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
 
-
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('../client/build'));
+    app.get('/', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    })
+}
 http.listen(PORT, () => {
     console.log(`Listening to ${PORT}`);
 })

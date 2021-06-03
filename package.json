@@ -8,7 +8,7 @@
         "client": "cd client && npm start",
         "server": "cd server && npm start",
         "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
-        "heroku-postbuild": "cd client && npm install && npm run build"
+        "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
     },
     "author": "",
     "license": "ISC",
@@ -17,5 +17,9 @@
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "socket.io": "^3.1.0"
+    },
+    "engines": {
+        "node": "14.7.0",
+        "npm": "7.12.0"
     }
 }
