@@ -2,9 +2,13 @@ const app = require('express')()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const cors = require('cors')
+
 const PORT = process.env.PORT || 5000
 const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
+
+
+// Serve static files from the React frontend app
 
 app.use(cors())
 
@@ -131,6 +135,9 @@ io.on('connection', (socket) => {
 app.get('/', (req, res) => {
     res.send("Server is up and running")
 })
+
+// AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
+
 
 http.listen(PORT, () => {
     console.log(`Listening to ${PORT}`);
