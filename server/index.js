@@ -5,7 +5,7 @@ const io = require('socket.io')(http)
 const cors = require('cors')
 const path = require('path');
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
+const { addUser, getUser, deleteUser, getUsers, updatePosition, updateGame, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
 // const { addGame, getGame, deletePlayer } = require('./games')
 
 
@@ -63,25 +63,25 @@ io.on('connection', (socket) => {
         
         io.in(user.room).emit('startGame', game)
     })
-    socket.on('move', (object) => {
-        if(object.ball === "computer"){
-            const user = getUser(object.id);
-            if(user === undefined) return;
-            let comPos = updatePosition(object.position, object.id, object.ball, object.selected )
-            io.in(user.room).emit('movePlayers', comPos)
-            return;
-        }
+    socket.on('move', (gameState) => {
+        // if(object.ball === "computer"){
+        //     const user = getUser(object.id);
+        //     if(user === undefined) return;
+        //     let comPos = updatePosition(object.position, object.id, object.ball, object.selected )
+        //     io.in(user.room).emit('movePlayers', comPos)
+        //     return;
+        // }
        
-        const user = getUser(object.id);
-        const gamePos = updatePosition(object.position, user.id, object.ball, object.selected, object.ballSpeed, object.ballDirY, object.ballDirX)
-      
-        const newPos = { player1: gamePos.game.player1, player2: gamePos.game.player2, 
-            ball: gamePos.game.ball, 
-            ballSpeed: object.ballSpeed, 
-            ballDirX: object.ballDirX,
-            ballDirY: object.ballDirY
-        }
-        io.in(user.room).emit('movePlayers', newPos)
+        // const user = getUser(object.id);
+        // const gamePos = updatePosition(object.position, user.id, object.ball, object.selected, object.ballSpeed, object.ballDirY, object.ballDirX)
+        const game = updateGame(gameState)
+        // const newPos = { player1: gamePos.game.player1, player2: gamePos.game.player2, 
+        //     ball: gamePos.game.ball, 
+        //     ballSpeed: object.ballSpeed, 
+        //     ballDirX: object.ballDirX,
+        //     ballDirY: object.ballDirY
+        // }
+        io.in(gameState.room).emit('movePlayers', game)
     })
     socket.on("playerSelected", () => {
         const user = getUser(socket.id);

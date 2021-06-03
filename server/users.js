@@ -158,7 +158,13 @@ const setGame = (room) => {
  
     return game
 }
-
+const updateGame = (gameState) => {
+    const game = getGame(gameState.room)
+    game.player1 = gameState.player1
+    game.player2 = gameState.player2
+    game.ball = gameState.ball
+    return game
+}
 const deleteUser = (id) => {
   
     const index = users.findIndex((user) => user.id === id);
@@ -232,4 +238,4 @@ const deleteGame = (user) => {
 const getUsers = (room) => users.filter(user => user.room === room)
 const getGames = (room) => games.filter(game => game.room === room)
 
-module.exports = { addUser, getUser, resetGame, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore }
+module.exports = { updateGame, addUser, getUser, resetGame, deleteUser, getUsers, updatePosition, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore }

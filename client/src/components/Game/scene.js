@@ -90,21 +90,21 @@ const Scene = () => {
         const bottomWall = -3.68
         let objects = createPong();
 
-        socket.on('movePlayers', (positions) => {
-            
+        socket.on('movePlayers', (gameState) => {
             
            if(selected != "player2"){
-               objects["player2"].position.set(5, positions.player2[1], 0)
+               objects["player2"].position.set(5, gameState.player2[1], 0)
            }
            if(selected != "player1"){
-               objects["player1"].position.set(...positions.player1)
+               objects["player1"].position.set(...gameState.player1)
            }
             
-            if(positions.ball === undefined ){
+            if(gameState.ball === undefined ){
                 return
             }
-            // if(selected != "player1" ){
-                objects["ball"].position.set(...positions.ball)
+            if(selected != "player1" ){
+                objects["ball"].position.set(...gameState.ball)
+            }
                 // let newBall = makeBall(...positions.ball)
                 // scene.remove(objects["ball"])
                 // objects["ball"] = newBall
@@ -392,16 +392,23 @@ const Scene = () => {
                 }
                 
                 if(selected === "player1" || computer === true){
-                    socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
+                    // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
                 }else{
 
                     // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name});
                 }
 
                 prevTime = time;
-
+                let gameState = {
+                    player1: [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z],
+                    player2: [objects["player2"].position.x, objects["player2"].position.y, objects["player2"].position.z],
+                    ball: [objects["ball"].position.x, objects["ball"].position.y, objects["ball"].position.z],
+                    time: time,
+                    room: room,
+                    id: socket.id
+                }
+                socket.emit('move', gameState)
             }
-            
             
             renderer.render(scene, camera);
         };
