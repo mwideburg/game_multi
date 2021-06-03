@@ -9,6 +9,12 @@ const { addUser, getUser, deleteUser, getUsers, updatePosition, selectedPlayer, 
 
 
 // Serve static files from the React frontend app
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('../client/build'));
+    app.get('/', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '/../client', 'build', 'index.html'));
+    })
+}
 
 app.use(cors())
 
@@ -138,12 +144,7 @@ app.get('/', (req, res) => {
 
 // AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('../client/build'));
-    app.get('/', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    })
-}
+
 http.listen(PORT, () => {
     console.log(`Listening to ${PORT}`);
 })
