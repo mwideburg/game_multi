@@ -104,12 +104,12 @@ const Scene = () => {
                 return
             }
             // if(selected != "player1" ){
-                
-                let newBall = makeBall(...positions.ball)
-                scene.remove(objects["ball"])
-                objects["ball"] = newBall
+                objects["ball"].position.set(...positions.ball)
+                // let newBall = makeBall(...positions.ball)
+                // scene.remove(objects["ball"])
+                // objects["ball"] = newBall
 
-                scene.add(newBall)
+                // scene.add(newBall)
 
                 // ballDirY = positions.ballDirY
                 // ballDirX = positions.ballDirX
@@ -255,7 +255,7 @@ const Scene = () => {
             player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), (computerSpeed * delta))
 
             const comp = (selected === "player1") ? "player2" : "player1"
-            // socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
+            socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
         }
 
         const collisionCheck = (ball) => {
@@ -392,7 +392,7 @@ const Scene = () => {
                 }
                 
                 if(selected === "player1" || computer === true){
-                    // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
+                    socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
                 }else{
 
                     // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name});
