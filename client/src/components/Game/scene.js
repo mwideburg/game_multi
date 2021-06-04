@@ -199,7 +199,7 @@ const Scene = () => {
             
             if (game.status || user.selected === "none" ){
                 const game = games.find(game => game.room === room)
-                console.log(game)
+                
                 if(game != undefined){
                     objects["player1"].position.set(game.player1)
                     objects["player2"].position.set(game.player2)
