@@ -133,7 +133,7 @@ const getGame = (room, id, user) => {
         ballDirY: 1,
         ballDirX: 1,
         score: [0, 0],
-        snapshots: []
+        time: 0
     }
     
     games.push(game)
@@ -162,10 +162,11 @@ const setGame = (room) => {
 }
 const updateGame = (gameState) => {
     const game = getGame(gameState.room)
-    game.snapshots.push(gameState)
-    if(game.snapshots.length > 10){
-        game.snapshots.shift()
-    }
+    Object.keys(gameState).forEach(key => {
+        game[key] = gameState[key]
+    })
+    
+    
     
     return game
 }

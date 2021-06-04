@@ -67,6 +67,7 @@ const Scene = () => {
             ballDirY: 1,
             ballDirX: 1,
         }
+        let newState;
         let wait = false;
         const velocity = new THREE.Vector3();
         const randomDir = [-1, -.2, -1.5, -2, 1, 2, 1.5, .5, .7, 1.8]
@@ -98,44 +99,65 @@ const Scene = () => {
         const topWall = 3.7
         const bottomWall = -3.68
         let objects = createPong();
-
+        let snapShots = []
         socket.on('movePlayers', (game) => {
-            const time = performance.now() - 200
+            
             
             
             let newState;
-            if(game.snapshots.length < 3) return;
-            for(let i = 0; i < game.snapshots.length; i ++){
-                const gameState = game.snapshots[i]
-                if(gameState.time > time){
-                    oldState = game.snapshots[i - 1]
-                    newState = game.snapshots[i]
-                }
-            }
+            snapShots.push(game)
             
-            if(oldState === undefined) return;
+            // if(selected === "none"){
+            //     let time = performance.now
+            //     for (let i = 0; i < snapShots.length; i++) {
+            //         const gameState = snapShots[i].snapshots[0]
+
+
+            //         if (gameState.time < time - 100 && gameState.time > time - 200) {
+            //             oldState = snapShots[i].snapshots[0]
+            //         }
+            //         if (gameState.time > time - 100) {
+
+
+            //             newState = snapShots[i].snapshots[0]
+            //         }
+            //     }
+
+            //     if (oldState === undefined) return;
+            //     if (newState === undefined) return;
+
+            //     if (selected != "player1") {
+            //         objects["player1"].position.set(...oldState.player1)
+            //         objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .3)
+            //     }
+            //     if (selected != "player2") {
+            //         objects["player2"].position.set(...oldState.player2)
+            //         objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .3)
+            //     }
+
+            //     if (wait) {
+            //         return;
+            //     }
+            //     if (oldState.ballSpeed === 0 && newState.ballSpeed === 0) {
+            //         ballSpeed = .1
+            //         ballDirY = newState.ballDirY
+            //         ballDirX = newState.ballDirX
+            //     }
+
+            //     objects["ball"].position.set(...newState.ball)
+            //     ballSpeed = newState.ballSpeed
+            //     ballDirY = newState.ballDirY
+            //     ballDirX = newState.ballDirX
+
+            //     objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .3)
+            // }
             
-            if(selected != "player1"){
-                objects["player1"].position.set(...oldState.player1)
-                objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .3)
-            }
-            if(selected != "player2"){
-                objects["player2"].position.set(...oldState.player2)
-                objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .3)
-            }
             
-            if(wait){
-                return;
+            
+            
+            if(snapShots.length > 20){
+                snapShots.shift()
             }
-            if(oldState.ballSpeed === 0 && newState.ballSpeed === 0){
-                newState.ballSpeed = .1
-            }
-            objects["ball"].position.set(...newState.ball)
-            ballSpeed = newState.ballSpeed
-            ballDirY = newState.ballDirY
-            ballDirX = newState.ballDirX
-            collisionCheck(objects["ball"])
-            oldState = newState
             // objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .5)
             
             // collisionCheck(objects["ball"])
@@ -174,8 +196,16 @@ const Scene = () => {
         })
   
         socket.on("playerAdded", user => {
-           
+            
             if (game.status || user.selected === "none" ){
+                const game = games.find(game => game.room === room)
+                console.log(game)
+                if(game != undefined){
+                    objects["player1"].position.set(game.player1)
+                    objects["player2"].position.set(game.player2)
+                    objects["ball"].position.set(game.ball)
+                }
+                
                 return;
             } 
             if (user.selected === "player1"){
@@ -228,9 +258,9 @@ const Scene = () => {
             }
             
         })
-        socket.on("beginAgain", (ballDir) => {
+        socket.on("beginAgain", () => {
             ballSpeed = .1
-            ballDirY = ballDir
+            
             wait = false
         })
         const onKeyDown = function (event) {
@@ -360,7 +390,7 @@ const Scene = () => {
                 
                 
                 ball.position.set(0, 0, 0)
-                ballSpeed = 0;
+                // ballSpeed = 0;
                 wait = true;
                 
                 if(selected === "player1" || computer === true){
@@ -373,12 +403,13 @@ const Scene = () => {
             // if ball goes off the bottom side (side of table)
             if (ball.position.x <= leftWall - .5) {
                 ball.position.set(0, 0, 0)
-                ballSpeed = 0;
+                // ballSpeed = 0;
                 wait = true;
                 
                 if (selected === "player2" || computer === true) {
                 socket.emit("playerScored", { room: room, player: "player2", time: time })
                 }
+                
                 
             }
 
@@ -390,26 +421,86 @@ const Scene = () => {
             if (ballSpeed > .2) {
                 ballSpeed -= .004
             }
-            ball.translateX( ballDirX * ballSpeed)
-            ball.translateY( ballDirY * ballSpeed)
             
+            // ball.position.y += (ballDirY * ballSpeed)
+            // ball.position.x += (ballDirX * ballSpeed)
         }
     
         const animate = function () {
             requestAnimationFrame(animate);
+            const time = performance.now();
+            if(start){
+
+                for (let i = 0; i < snapShots.length; i++) {
+                    const gameState = snapShots[i]
+    
+    
+                    // if (gameState.time < time - 100 && gameState.time > time - 200) {
+                    //     oldState = snapShots[i].snapshots[2]
+                    // }
+                    if (gameState.time > time - 50) {
+    
+                        oldState = snapShots[i - 1]
+                        newState = snapShots[i]
+                    }
+                }
+                if (newState != undefined && oldState != undefined) {
+    
+                    
+                    
+                    
+                    objects["player1"].position.set(...oldState.player1)
+                    objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .9)
+                    objects["player2"].position.set(...oldState.player2)
+                    objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .9)
+                    if(wait){
+                        ballSpeed = .1
+                    }
+                   
+                    if (!wait && (selected != 'none')) {
+                        objects["ball"].position.set(...oldState.ball)
+                        objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
+                        ballDirX = newState.ballDirX
+                        ballDirY = newState.ballDirY
+                        ballSpeed = newState.ballSpeed
+                        
+                        collisionCheck(objects["ball"])
+                    }
+                    
+                    
+                    if(oldState.player1 != undefined && newState.player1[1] != undefined){
+                        
+                    }
+                    if(oldState.player2 != undefined && newState.player2[1] != undefined){
+                        
+                    }
+                        
+                        
+                    
+                    
+                    if (selected != "player1") {
+                        
+                    }
+                    if (selected != "player2" && computer === false) {
+                        
+                    }
+                }
+            }
             
-            if(controls != null && selected != null && start){
-                const time = performance.now();
+            if(controls != null && selected != 'none' && start){
+                
                 const delta = (time - prevTime) / 1000;
+                
+                
                 let dir = 0
                 if (moveForward) {
                     if (controls.getObject().position.y < topWall - .48) {
-                        dir = .12
+                        dir = .07
                     }
                 }
                 if (moveBackward) {
                     if (controls.getObject().position.y > bottomWall + .475) {
-                        dir = -.12
+                        dir = -.07
                     }
                 }
                 
@@ -417,11 +508,23 @@ const Scene = () => {
                 
                 const play = objects[selected]
                 const ball = objects["ball"]
+                let pos1;
+                let pos2;
+                const comp = (selected === "player1") ? "player2" : "player1"
                 if (computer === true) {
-                    const comp = (selected === "player1") ? "player2" : "player1"
+                    
                     moveComputer(objects[comp], ball, delta);
+                    pos2 = [objects[comp].position.x, objects[comp].position.y, objects[comp].position.z]
                 }
                 
+                if(selected === "player1"){
+                    pos1 = [objects["player1"].position.x, objects["player1"].position.y + dir, objects["player1"].position.z]
+                    // pos2 = [objects["player2"].position.x, objects["player2"].position.y, objects["player2"].position.z]
+                }else if(selected === "player2"){
+                    // pos1 = [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z]
+                    pos2 = [objects["player2"].position.x, objects["player2"].position.y + dir, objects["player2"].position.z]
+                }
+
                 
                 
                     
@@ -433,15 +536,17 @@ const Scene = () => {
                 prevTime = time;
                 
                 let gameState = {
-                    player1: [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z],
-                    player2: [objects["player2"].position.x, objects["player2"].position.y, objects["player2"].position.z],
-                    ball: [objects["ball"].position.x, objects["ball"].position.y, objects["ball"].position.z],
+                    [selected]: [objects[selected].position.x, objects[selected].position.y + dir, objects[selected].position.z],
+                    ball: [objects["ball"].position.x + (ballDirX * ballSpeed), objects["ball"].position.y + (ballDirY * ballSpeed), objects["ball"].position.z],
                     ballSpeed: ballSpeed,
                     ballDirY: ballDirY,
                     ballDirX: ballDirX,
                     time: time,
                     room: room,
                     id: socket.id
+                }
+                if(computer){
+                    gameState[comp] = [objects[comp].position.x, objects[comp].position.y, objects[comp].position.z]
                 }
                 socket.emit('move', gameState)
                 

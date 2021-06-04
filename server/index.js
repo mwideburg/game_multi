@@ -89,10 +89,15 @@ io.on('connection', (socket) => {
         const games = getGames(object.room)
         if(game === undefined) return;
         io.in(object.room).emit("newScores", game)
-        io.in(object.room).emit("games",  games)
         setTimeout(() => {
-            const ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-            io.in(object.room).emit("beginAgain", ballDirY)
+            // const ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
+            const ballSpeed = .1;
+            game.ballSpeed = ballSpeed
+            // game.ballDirY = ballDirY
+            io.in(object.room).emit("games", games)
+            // io.in(object.room).emit("move", game)
+            io.in(object.room).emit("beginAgain")
+            
         }, 300)
         
     })
