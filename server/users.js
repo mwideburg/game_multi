@@ -117,13 +117,11 @@ const getGame = (room, id, user) => {
 
     let game = games.find(game => game.room == room)
     const gIdx = games.findIndex((game) => game.room === room)
-
-    
     
     if(game != undefined){
         return game;
     }
-
+    if (user === undefined) return;
     game = {room: room, 
         status: false, ids: [], 
         player1Name: user.name, 
@@ -134,7 +132,8 @@ const getGame = (room, id, user) => {
         ballSpeed: .1,
         ballDirY: 1,
         ballDirX: 1,
-        score: [0, 0]
+        score: [0, 0],
+        snapshots: []
     }
     
     games.push(game)
@@ -143,6 +142,9 @@ const getGame = (room, id, user) => {
 
 const addScore = (room, player) => {
     const game = getGame(room)
+    if(game === undefined){
+        return;
+    }
     if(player === "player1"){
         game.score[0] += 1
     }else{
@@ -160,9 +162,11 @@ const setGame = (room) => {
 }
 const updateGame = (gameState) => {
     const game = getGame(gameState.room)
-    game.player1 = gameState.player1
-    game.player2 = gameState.player2
-    game.ball = gameState.ball
+    game.snapshots.push(gameState)
+    if(game.snapshots.length > 10){
+        game.snapshots.shift()
+    }
+    
     return game
 }
 const deleteUser = (id) => {

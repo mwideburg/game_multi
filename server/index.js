@@ -20,6 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors())
 
 io.on('connection', (socket) => {
+   
     socket.on('login', ({ name, room }, callback) => {
         const { user, error } = addUser(socket.id, name, room, null, null)
         
@@ -64,23 +65,9 @@ io.on('connection', (socket) => {
         io.in(user.room).emit('startGame', game)
     })
     socket.on('move', (gameState) => {
-        // if(object.ball === "computer"){
-        //     const user = getUser(object.id);
-        //     if(user === undefined) return;
-        //     let comPos = updatePosition(object.position, object.id, object.ball, object.selected )
-        //     io.in(user.room).emit('movePlayers', comPos)
-        //     return;
-        // }
        
-        // const user = getUser(object.id);
-        // const gamePos = updatePosition(object.position, user.id, object.ball, object.selected, object.ballSpeed, object.ballDirY, object.ballDirX)
         const game = updateGame(gameState)
-        // const newPos = { player1: gamePos.game.player1, player2: gamePos.game.player2, 
-        //     ball: gamePos.game.ball, 
-        //     ballSpeed: object.ballSpeed, 
-        //     ballDirX: object.ballDirX,
-        //     ballDirY: object.ballDirY
-        // }
+      
         io.in(gameState.room).emit('movePlayers', game)
     })
     socket.on("playerSelected", () => {
@@ -97,10 +84,17 @@ io.on('connection', (socket) => {
     })
 
     socket.on('playerScored', (object) => {
+        const randomDir = [-1, -.2, -1.5, -2, 1, 2, 1.5, .5, .7, 1.8]
         const game = addScore(object.room, object.player)
         const games = getGames(object.room)
+        if(game === undefined) return;
         io.in(object.room).emit("newScores", game)
         io.in(object.room).emit("games",  games)
+        setTimeout(() => {
+            const ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
+            io.in(object.room).emit("beginAgain", ballDirY)
+        }, 300)
+        
     })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)

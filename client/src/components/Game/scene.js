@@ -59,6 +59,15 @@ const Scene = () => {
         let canJump = false;
         let prevTime = performance.now();
         let start;
+        let oldState = {
+            player1: [-5, 0, 0],
+            player2: [5, 0, 0],
+            ball: [0, 0, 0],
+            ballSpeed: .1,
+            ballDirY: 1,
+            ballDirX: 1,
+        }
+        let wait = false;
         const velocity = new THREE.Vector3();
         const randomDir = [-1, -.2, -1.5, -2, 1, 2, 1.5, .5, .7, 1.8]
         var ballDirX = 1, ballDirY = -1, ballSpeed = .1;
@@ -90,20 +99,56 @@ const Scene = () => {
         const bottomWall = -3.68
         let objects = createPong();
 
-        socket.on('movePlayers', (gameState) => {
+        socket.on('movePlayers', (game) => {
+            const time = performance.now() - 200
+            
+            
+            let newState;
+            if(game.snapshots.length < 3) return;
+            for(let i = 0; i < game.snapshots.length; i ++){
+                const gameState = game.snapshots[i]
+                if(gameState.time > time){
+                    oldState = game.snapshots[i - 1]
+                    newState = game.snapshots[i]
+                }
+            }
+            
+            if(oldState === undefined) return;
+            
+            if(selected != "player1"){
+                objects["player1"].position.set(...oldState.player1)
+                objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .3)
+            }
+            if(selected != "player2"){
+                objects["player2"].position.set(...oldState.player2)
+                objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .3)
+            }
+            
+            if(wait){
+                return;
+            }
+            if(oldState.ballSpeed === 0 && newState.ballSpeed === 0){
+                newState.ballSpeed = .1
+            }
+            objects["ball"].position.set(...newState.ball)
+            ballSpeed = newState.ballSpeed
+            ballDirY = newState.ballDirY
+            ballDirX = newState.ballDirX
+            oldState = newState
+            // objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .5)
+            
+            // collisionCheck(objects["ball"])
             
            if(selected != "player2"){
-               objects["player2"].position.set(5, gameState.player2[1], 0)
+               
            }
            if(selected != "player1"){
-               objects["player1"].position.set(...gameState.player1)
+               
            }
             
-            if(gameState.ball === undefined ){
-                return
-            }
+           
             if(selected != "player1" ){
-                objects["ball"].position.set(...gameState.ball)
+                
             }
                 // let newBall = makeBall(...positions.ball)
                 // scene.remove(objects["ball"])
@@ -111,9 +156,7 @@ const Scene = () => {
 
                 // scene.add(newBall)
 
-                // ballDirY = positions.ballDirY
-                // ballDirX = positions.ballDirX
-                // ballSpeed = positions.ballSpeed
+                
             // }
             
 
@@ -178,10 +221,16 @@ const Scene = () => {
             
             if (score1 === 10 || score2 === 10) {
                 
-                document.getElementById("start-game").style.display = "block"
+                
+                start = false;
                 onOpen() 
             }
             
+        })
+        socket.on("beginAgain", (ballDir) => {
+            ballSpeed = .1
+            ballDirY = ballDir
+            wait = false
         })
         const onKeyDown = function (event) {
             switch (event.code) {
@@ -207,7 +256,7 @@ const Scene = () => {
             score1 = 0
             score2 = 0
             onClose()
-            
+            document.getElementById("start-game").style.display = "block"
             objects["player1"].position.set(-5, 0, 0)
             objects["player2"].position.set(5, 0, 0)
             ballSpeed = .1
@@ -234,7 +283,7 @@ const Scene = () => {
 
         };
         
-        const moveComputer = (player2, ball, delta) => {
+        const moveComputer = (comp, ball, delta) => {
             
            
             if(dir > computerSpeed * 2){
@@ -243,22 +292,21 @@ const Scene = () => {
             if (dir < computerSpeed * 2) {
                 dir = 0
             }
-            if (player2.position.y > ball.position.y){
+            if (comp.position.y > ball.position.y){
                 
                 dir -= .4
             }
-            if (player2.position.y < ball.position.y) {
+            if (comp.position.y < ball.position.y) {
                 
                 dir += .4
             }
 
-            player2.position.lerp(new THREE.Vector3(player2.position.x, ball.position.y, 0), (computerSpeed * delta))
-
-            const comp = (selected === "player1") ? "player2" : "player1"
-            // socket.emit("move", { id: socket.id, room: room, computer: true, selected: comp, position: [player2.position.x, player2.position.y, 0], ball: "computer"})
+            comp.position.lerp(new THREE.Vector3(comp.position.x, ball.position.y, 0), (computerSpeed * delta))
+           
         }
 
         const collisionCheck = (ball) => {
+            const time = performance.now()
             const playArr = [objects["player1"], objects["player2"]]
             playArr.forEach(player => {
                 // const top = ball.position.distanceTo(player.position)
@@ -309,42 +357,28 @@ const Scene = () => {
             }
             if (ball.position.x >= rightWall + .5) {
                 
-                score1 += 1
+                
                 ball.position.set(0, 0, 0)
-                ballSpeed = 0
-
-                socket.emit("playerScored", {room: room, player: "player1"})
-                if (score1 === 10) {
-                    socket.emit("playerWon", { room: room, player: "player2" })
-                    start = false
-                    onOpen();
-                    return;
+                ballSpeed = 0;
+                wait = true;
+                
+                if(selected === "player1" || computer === true){
+                    socket.emit("playerScored", {room: room, player: "player1", time: time})
                 }
                 
-                setTimeout(() => {
-                    ballSpeed = .1
-                    
-                    ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-                }, 300)
+                
             }
             
             // if ball goes off the bottom side (side of table)
             if (ball.position.x <= leftWall - .5) {
                 ball.position.set(0, 0, 0)
-                ballSpeed = 0
-                score2 += 1
-                socket.emit("playerScored", { room: room, player: "player2" })
-                if (score2 === 10) {
-                    socket.emit("playerWon", { room: room, player: "player2" })
-                    start = false
-                    onOpen();
-                    return;
+                ballSpeed = 0;
+                wait = true;
+                
+                if (selected === "player2" || computer === true) {
+                socket.emit("playerScored", { room: room, player: "player2", time: time })
                 }
-                setTimeout(() => {
-                    ballSpeed = .1
-                    
-                    ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-                }, 300)
+                
             }
 
             
@@ -378,7 +412,7 @@ const Scene = () => {
                     }
                 }
                 
-                controls.getObject().position.y += (dir); // new behavior
+                controls.getObject().position.y += dir // new behavior
                 
                 const play = objects[selected]
                 const ball = objects["ball"]
@@ -386,28 +420,30 @@ const Scene = () => {
                     const comp = (selected === "player1") ? "player2" : "player1"
                     moveComputer(objects[comp], ball, delta);
                 }
-                if (selected === "player1" || computer === true) {
-                    
-                    collisionCheck(objects["ball"])
-                }
                 
-                if(selected === "player1" || computer === true){
-                    // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name, ballSpeed: ballSpeed, ballDirX: ballDirX, ballDirY: ballDirY, ball: [ball.position.x, ball.position.y, ball.position.z] });
-                }else{
-
-                    // socket.emit('move', { position: [play.position.x, play.position.y, play.position.z], selected: selected, id: socket.id, name: name});
-                }
+                
+                collisionCheck(objects["ball"])
+                    
+                
+                
+                
+                
 
                 prevTime = time;
+                
                 let gameState = {
                     player1: [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z],
                     player2: [objects["player2"].position.x, objects["player2"].position.y, objects["player2"].position.z],
                     ball: [objects["ball"].position.x, objects["ball"].position.y, objects["ball"].position.z],
+                    ballSpeed: ballSpeed,
+                    ballDirY: ballDirY,
+                    ballDirX: ballDirX,
                     time: time,
                     room: room,
                     id: socket.id
                 }
                 socket.emit('move', gameState)
+                
             }
             
             renderer.render(scene, camera);
@@ -503,10 +539,10 @@ const Scene = () => {
                     </ModalBody>
 
                     <ModalFooter justifyContent="space-around">
-                        <Button variantColor="blue" mr={3} onClick={resetGame}>
+                        <Button color="blue.300" mr={3} onClick={resetGame}>
                             Play Again
                         </Button>
-                        <Button variantColor="blue" mr={3} onClick={onClose}>
+                        <Button color="blue.300" mr={3} onClick={onClose}>
                             Close
                         </Button>
                         
