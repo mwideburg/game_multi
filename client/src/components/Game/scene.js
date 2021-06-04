@@ -102,11 +102,19 @@ const Scene = () => {
         let snapShots = []
         socket.on('movePlayers', (game) => {
             
-            
+            if(start === false){
+                start = true
+            }
             
             let newState;
             snapShots.push(game)
-            
+            if(selected === 'none' || selected === null){
+                objects["player1"].position.set(...game.player1)
+                // objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .9)
+                objects["player2"].position.set(...game.player2)
+                // objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .9)
+                objects["ball"].position.set(...game.ball)
+            }
             // if(selected === "none"){
             //     let time = performance.now
             //     for (let i = 0; i < snapShots.length; i++) {
@@ -430,7 +438,7 @@ const Scene = () => {
             requestAnimationFrame(animate);
             const time = performance.now();
             if(start){
-
+                
                 for (let i = 0; i < snapShots.length; i++) {
                     const gameState = snapShots[i]
     
@@ -456,10 +464,10 @@ const Scene = () => {
                     if(wait){
                         ballSpeed = .1
                     }
-                   
+                    objects["ball"].position.set(...oldState.ball)
+                    objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
                     if (!wait && (selected != 'none')) {
-                        objects["ball"].position.set(...oldState.ball)
-                        objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
+                        
                         ballDirX = newState.ballDirX
                         ballDirY = newState.ballDirY
                         ballSpeed = newState.ballSpeed
@@ -524,7 +532,6 @@ const Scene = () => {
                     // pos1 = [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z]
                     pos2 = [objects["player2"].position.x, objects["player2"].position.y + dir, objects["player2"].position.z]
                 }
-
                 
                 
                     
