@@ -134,6 +134,7 @@ const Scene = () => {
             ballSpeed = newState.ballSpeed
             ballDirY = newState.ballDirY
             ballDirX = newState.ballDirX
+            collisionCheck(objects["ball"])
             oldState = newState
             // objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .5)
             
@@ -422,7 +423,7 @@ const Scene = () => {
                 }
                 
                 
-                collisionCheck(objects["ball"])
+                
                     
                 
                 
