@@ -102,9 +102,6 @@ const Scene = () => {
         let snapShots = []
         socket.on('movePlayers', (game) => {
             
-            if(start === false){
-                start = true
-            }
             
             let newState;
             snapShots.push(game)
@@ -345,6 +342,9 @@ const Scene = () => {
         }
 
         const collisionCheck = (ball) => {
+            if(ballSpeed > .25){
+                ballSpeed = .25
+            }
             const time = performance.now()
             const playArr = [objects["player1"], objects["player2"]]
             playArr.forEach(player => {
@@ -446,9 +446,9 @@ const Scene = () => {
                     // if (gameState.time < time - 100 && gameState.time > time - 200) {
                     //     oldState = snapShots[i].snapshots[2]
                     // }
-                    if (gameState.time > time - 200) {
+                    if (gameState.time > time - 2000) {
     
-                        oldState = snapShots[i - 1]
+                        oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
                 }
@@ -512,7 +512,7 @@ const Scene = () => {
                     }
                 }
                 
-                controls.getObject().position.y += dir // new behavior
+                // controls.getObject().position.y += dir // new behavior
                 
                 const play = objects[selected]
                 const ball = objects["ball"]
