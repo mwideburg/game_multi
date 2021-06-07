@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
+import { HashRouter, Router, Route, Switch, Redirect } from 'react-router-dom'
+import React, { Component, useContext} from 'react'
 import Login from './components/Login/Login'
 import Chat from './components/Chat/Chat'
 import { SocketProvider } from './socketContext'
@@ -9,13 +10,14 @@ import { UsersProvider } from './usersContext'
 import DefaultPage from './components/DefaultPage'
 import Game from './components/Game/game'
 function App() {
+  
   return (
     <ChakraProvider>
       <MainProvider>
         <UsersProvider>
           <SocketProvider>
             <Flex className="App" align='center' flexDirection="column" justifyContent='center'>
-              <Router>
+              <HashRouter>
                 <Switch>
                   <Route exact path='/' component={Login} />
                   
@@ -23,7 +25,7 @@ function App() {
                   <Route exact path='/chat/:room' component={Chat} />
                   <Route component={DefaultPage} />
                 </Switch>
-              </Router>
+              </HashRouter>
               
             </Flex>
           </SocketProvider>
