@@ -81,7 +81,7 @@ const Scene = () => {
         );
         let score1 = 0
         let score2 = 0
-        let computerSpeed = 7.6
+        let computerSpeed = 5
         let dir = 0
 
 
@@ -107,85 +107,16 @@ const Scene = () => {
             snapShots.push(game)
             if(selected === 'none' || selected === null){
                 objects["player1"].position.set(...game.player1)
-                // objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .9)
+                
                 objects["player2"].position.set(...game.player2)
-                // objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .9)
+               
                 objects["ball"].position.set(...game.ball)
             }
-            // if(selected === "none"){
-            //     let time = performance.now
-            //     for (let i = 0; i < snapShots.length; i++) {
-            //         const gameState = snapShots[i].snapshots[0]
-
-
-            //         if (gameState.time < time - 100 && gameState.time > time - 200) {
-            //             oldState = snapShots[i].snapshots[0]
-            //         }
-            //         if (gameState.time > time - 100) {
-
-
-            //             newState = snapShots[i].snapshots[0]
-            //         }
-            //     }
-
-            //     if (oldState === undefined) return;
-            //     if (newState === undefined) return;
-
-            //     if (selected != "player1") {
-            //         objects["player1"].position.set(...oldState.player1)
-            //         objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .3)
-            //     }
-            //     if (selected != "player2") {
-            //         objects["player2"].position.set(...oldState.player2)
-            //         objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .3)
-            //     }
-
-            //     if (wait) {
-            //         return;
-            //     }
-            //     if (oldState.ballSpeed === 0 && newState.ballSpeed === 0) {
-            //         ballSpeed = .1
-            //         ballDirY = newState.ballDirY
-            //         ballDirX = newState.ballDirX
-            //     }
-
-            //     objects["ball"].position.set(...newState.ball)
-            //     ballSpeed = newState.ballSpeed
-            //     ballDirY = newState.ballDirY
-            //     ballDirX = newState.ballDirX
-
-            //     objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .3)
-            // }
-            
-            
-            
             
             if(snapShots.length > 20){
                 snapShots.shift()
             }
-            // objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .5)
             
-            // collisionCheck(objects["ball"])
-            
-           if(selected != "player2"){
-               
-           }
-           if(selected != "player1"){
-               
-           }
-            
-           
-            if(selected != "player1" ){
-                
-            }
-                // let newBall = makeBall(...positions.ball)
-                // scene.remove(objects["ball"])
-                // objects["ball"] = newBall
-
-                // scene.add(newBall)
-
-                
-            // }
             
 
         })
