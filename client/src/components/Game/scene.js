@@ -195,6 +195,7 @@ const Scene = () => {
             
         })
         socket.on("beginAgain", () => {
+
             ballSpeed = .1
             
             wait = false
@@ -329,7 +330,7 @@ const Scene = () => {
                 
                 
                 ball.position.set(0, 0, 0)
-                // ballSpeed = 0;
+                ballSpeed = 0;
                 wait = true;
                 
                 if(selected === "player1" || computer === true){
@@ -342,7 +343,7 @@ const Scene = () => {
             // if ball goes off the bottom side (side of table)
             if (ball.position.x <= leftWall - .5) {
                 ball.position.set(0, 0, 0)
-                // ballSpeed = 0;
+                ballSpeed = 0;
                 wait = true;
                 
                 if (selected === "player2" || computer === true) {
@@ -392,37 +393,25 @@ const Scene = () => {
                     objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .9)
                     objects["player2"].position.set(...oldState.player2)
                     objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .9)
-                    if(wait){
-                        ballSpeed = .1
+                    // if(wait){
+                    //     ballSpeed = .1
+                    // }
+                    if(!wait){
+                        objects["ball"].position.set(...oldState.ball)
+                        objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
                     }
-                    objects["ball"].position.set(...oldState.ball)
-                    objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
+                    
                     if (!wait && (selected != 'none')) {
                         
                         ballDirX = newState.ballDirX
                         ballDirY = newState.ballDirY
                         ballSpeed = newState.ballSpeed
-                        
+                        if(ballSpeed === 0){
+                            ballSpeed = .1
+                        }
                         collisionCheck(objects["ball"])
                     }
                     
-                    
-                    if(oldState.player1 != undefined && newState.player1[1] != undefined){
-                        
-                    }
-                    if(oldState.player2 != undefined && newState.player2[1] != undefined){
-                        
-                    }
-                        
-                        
-                    
-                    
-                    if (selected != "player1") {
-                        
-                    }
-                    if (selected != "player2" && computer === false) {
-                        
-                    }
                 }
             }
             
@@ -434,12 +423,12 @@ const Scene = () => {
                 let dir = 0
                 if (moveForward) {
                     if (controls.getObject().position.y < topWall - .48) {
-                        dir = .07
+                        dir = .1
                     }
                 }
                 if (moveBackward) {
                     if (controls.getObject().position.y > bottomWall + .475) {
-                        dir = -.07
+                        dir = -.1
                     }
                 }
                 
