@@ -12,12 +12,13 @@ const { addUser, getUser, deleteUser, getUsers, updatePosition, updateGame, sele
 // Serve static files from the React frontend app
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('../client/build'));
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '/../client', 'build', 'index.html'));
-    })
+    
 }
-
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '/../client', 'build', 'index.html'));
+})
 app.use(cors())
+
 
 io.on('connection', (socket) => {
    
@@ -140,7 +141,10 @@ io.on('connection', (socket) => {
 
 app.get('/', (req, res) => {
     res.send("Server is up and running")
+    
 })
+
+
 
 // AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
 

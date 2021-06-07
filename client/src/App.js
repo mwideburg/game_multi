@@ -19,7 +19,7 @@ function App() {
                 <Switch>
                   <Route exact path='/' component={Login} />
                   
-                  <Route exact path='/games/:room' component={Game} />
+                  <Route exact path='/game' component={Game} />
                   <Route exact path='/chat/:room' component={Chat} />
                   <Route component={DefaultPage} />
                 </Switch>
