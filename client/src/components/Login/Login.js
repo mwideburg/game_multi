@@ -40,7 +40,7 @@ const Login = () => {
                 })
             }
        
-            history.push(`/games/${room}`)
+            history.push(`/chat/${room}`)
             return toast({
                 position: "top",
                 title: "Hey there",
