@@ -9,6 +9,7 @@ import { UsersContext } from '../../usersContext'
 import { useToast } from "@chakra-ui/react"
 
 import Scene from './scene'
+import Chat from '../Chat/Chat.js'
 
 import { Socket } from "socket.io-client";
 function Game() {
@@ -49,7 +50,7 @@ function Game() {
         
         <Flex className="game" align="center" flexDirection="row" width={{ base: "100%" }} height={{ base: "100%", sm: "auto" }}>
             {scene} 
-            
+            <Chat />
         </Flex>
         </>
 

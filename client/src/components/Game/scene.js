@@ -81,9 +81,8 @@ const Scene = () => {
         );
         let score1 = 0
         let score2 = 0
-        let computerSpeed = 5
+        let computerSpeed = 7.3
         let dir = 0
-
 
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(850, 500);
@@ -398,7 +397,7 @@ const Scene = () => {
                     // }
                     if(!wait){
                         objects["ball"].position.set(...oldState.ball)
-                        objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), .9)
+                        objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), 1)
                     }
                     
                     if (!wait && (selected != 'none')) {
