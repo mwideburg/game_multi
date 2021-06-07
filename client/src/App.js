@@ -18,7 +18,7 @@ function App() {
               <Router>
                 <Switch>
                   <Route exact path='/' component={Login} />
-                  <Route path='/game' component={Game} />
+                  <Route exact path='/games/:room' component={Game} />
                   <Route component={DefaultPage} />
                 </Switch>
               </Router>
