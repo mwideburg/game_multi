@@ -7,9 +7,9 @@ const SocketProvider = ({ children }) => {
     let ENDPOINT
     
     if(process.env.NODE_ENV === 'production'){
-        ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
+        ENDPOINT = 'https://pong-rooms.herokuapp.com/'
     }else{
-        ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
+        ENDPOINT = 'http://localhost:5000'
     }
     const socket = io(ENDPOINT, { transports: ['websocket', 'polling'] })
     return (

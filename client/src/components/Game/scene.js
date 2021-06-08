@@ -22,6 +22,9 @@ import { UsersContext } from '../../usersContext'
 import * as THREE from "three";
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { Socket } from "socket.io-client";
+import wallSound from "./sounds/wall.mp3"
+import paddleSound from "./sounds/paddle.mp3"
+import score_mp3 from "./sounds/coin.wav"
 
 import './scene.scss'
 
@@ -99,6 +102,35 @@ const Scene = () => {
         const bottomWall = -3.68
         let objects = createPong();
         let snapShots = []
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // create a global audio source
+        const wall = new THREE.Audio(listener);
+        const paddle = new THREE.Audio(listener);
+        const scoreMP3 = new THREE.Audio(listener);
+
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load(wallSound, function (buffer) {
+            wall.setBuffer(buffer);
+            // wall.setLoop(true);
+            wall.setVolume(0.5);
+            
+        });
+        audioLoader.load(paddleSound, function (buffer) {
+            paddle.setBuffer(buffer);
+            // paddle.setLoop(true);
+            paddle.setVolume(0.5);
+            
+        });
+        audioLoader.load(score_mp3, function (buffer) {
+            scoreMP3.setBuffer(buffer);
+            // scoreMP3.setLoop(true);
+            scoreMP3.setVolume(0.5);
+            
+        });
+        
         socket.on('movePlayers', (game) => {
             
             
@@ -289,7 +321,9 @@ const Scene = () => {
                 if (ballPos.x <= tr[0] + number1 && ballPos.x >= tr[0] + number2 && ballPos.y <= tr[1] && ballPos.y >= bl[1]) {
 
                     ballDirX = -ballDirX;
-
+                    if (!paddle.isPlaying) {
+                        paddle.play()
+                    }
                     if (ballPos.y > player.position.y && ballPos.y - player.position.y > .2) {
                         if (ballDirY < 0) {
                             ballDirY -= .3;
@@ -315,15 +349,22 @@ const Scene = () => {
             }
             else if (ballDirY < -ballSpeed * 2) {
                 ballDirY = -ballSpeed * 2;
+                
             }
             // if ball goes off the top side (side of table)
             if (ball.position.y >= topWall) {
                 ballDirY = -ballDirY;
+                if (!wallSound.isPlaying) {
+                    wall.play()
+                }
             }
 
             // if ball goes off the bottom side (side of table)
             if (ball.position.y <= bottomWall) {
                 ballDirY = -ballDirY;
+                if (!wall.isPlaying) {
+                    wall.play()
+                }
             }
             if (ball.position.x >= rightWall + .5) {
                 
@@ -331,7 +372,9 @@ const Scene = () => {
                 ball.position.set(0, 0, 0)
                 ballSpeed = 0;
                 wait = true;
-                
+                if(!scoreMP3.isPlaying){
+                    scoreMP3.play()
+                }
                 if(selected === "player1" || computer === true){
                     socket.emit("playerScored", {room: room, player: "player1", time: time})
                 }
@@ -344,7 +387,9 @@ const Scene = () => {
                 ball.position.set(0, 0, 0)
                 ballSpeed = 0;
                 wait = true;
-                
+                if (!scoreMP3.isPlaying) {
+                    scoreMP3.play()
+                }
                 if (selected === "player2" || computer === true) {
                 socket.emit("playerScored", { room: room, player: "player2", time: time })
                 }
@@ -500,6 +545,7 @@ const Scene = () => {
         newPlayers["ball"] = ball
         
         setPlayers(newPlayers)
+        const listener = new THREE.AudioListener();
         
         return newPlayers
     }
@@ -562,11 +608,7 @@ const Scene = () => {
                 </ModalContent>
             </Modal>
         <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
-            <Flex flexDirection="row" justifyContent="space-around" width="100%">
             
-                <Text fontSize='4xl' color="blue.300">{room.slice(0, 1).toUpperCase() + room.slice(1)}</Text>
-                <a className="log-out" onClick={logout}>Logout</a>
-            </Flex>
             
             <Flex justifyContent="center" width="800px" height="60px">
                 <Button id="start-game" onClick={() => startGame()}> Start</Button>

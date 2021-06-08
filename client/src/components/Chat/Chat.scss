@@ -1,12 +1,14 @@
 .room{
     box-shadow: 1px 1px 10px rgba(0,0,0,.1);
-    border-radius: 5px;
+    border-radius: 10px 10px 10px 10px;
+    margin-right: 50px;
     .heading{
         font-family: 'DM Sans';
         color: rgb(70, 70, 70);
         font-size: 2rem;
         font-weight: 500;
         z-index: 1000;
+        border-radius: 10px 10px 0px 0px;
     }
 
     .messages{

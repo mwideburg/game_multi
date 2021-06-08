@@ -12,3 +12,9 @@ resources:
   memory_gb: 0.5
   disk_size_gb: 10
 
+handlers:
+  - url: /
+    static_files: client/build/index.html
+    upload: client/build/index.html
+  - url: /
+    static_dir: client/build
