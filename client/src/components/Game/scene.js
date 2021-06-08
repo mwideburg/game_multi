@@ -219,7 +219,7 @@ const Scene = () => {
             
             if (score1 === 10 || score2 === 10) {
                 
-                
+                document.getElementById("start-game").style.display = "block"
                 start = false;
                 onOpen() 
             }
@@ -255,7 +255,7 @@ const Scene = () => {
             score1 = 0
             score2 = 0
             onClose()
-            document.getElementById("start-game").style.display = "block"
+            
             objects["player1"].position.set(-5, 0, 0)
             objects["player2"].position.set(5, 0, 0)
             ballSpeed = .1
@@ -303,7 +303,8 @@ const Scene = () => {
             comp.position.lerp(new THREE.Vector3(comp.position.x, ball.position.y, 0), (computerSpeed * delta))
            
         }
-
+        let topHit;
+        let bottomHit;
         const collisionCheck = (ball) => {
             if(ballSpeed > .25){
                 ballSpeed = .25
@@ -312,8 +313,8 @@ const Scene = () => {
             const playArr = [objects["player1"], objects["player2"]]
             playArr.forEach(player => {
                 // const top = ball.position.distanceTo(player.position)
-                const tr = [player.position.x + .05, player.position.y + .55]
-                const bl = [player.position.x - .05, player.position.y - .55]
+                const tr = [player.position.x + .05, player.position.y + .57]
+                const bl = [player.position.x - .05, player.position.y - .57]
                 const distance = ball.position.distanceTo(player.position)
                 const ballPos = ball.position
                 const number1 = (tr[0] > 0) ? .1 : .3
@@ -353,18 +354,32 @@ const Scene = () => {
             }
             // if ball goes off the top side (side of table)
             if (ball.position.y >= topWall) {
-                ballDirY = -ballDirY;
-                if (!wallSound.isPlaying) {
-                    wall.play()
+                if(!topHit){
+                    ballDirY = -ballDirY;
+                    if (!wallSound.isPlaying) {
+                        wall.play()
+                    }
+                    topHit = true
+                    setTimeout(() => {
+                        topHit = false
+                    }, 100)
                 }
+                
             }
 
             // if ball goes off the bottom side (side of table)
             if (ball.position.y <= bottomWall) {
-                ballDirY = -ballDirY;
-                if (!wall.isPlaying) {
-                    wall.play()
+                if (!bottomHit) {
+                    ballDirY = -ballDirY;
+                    if (!wallSound.isPlaying) {
+                        wall.play()
+                    }
+                    bottomHit = true
+                    setTimeout(() => {
+                        bottomHit = false
+                    }, 100)
                 }
+
             }
             if (ball.position.x >= rightWall + .5) {
                 
@@ -574,25 +589,26 @@ const Scene = () => {
 
     return (
         <>
-        <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isOpen} onClose={onClose} isCentered size="2xl">
+                <ModalOverlay>
                 <ModalContent>
                     <ModalHeader>
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Flex justifyContent="center">
-                     {
-                            games && games.map(game => {
-                                let score1 = game.score[0]
-                                let score2 = game.score[1]
-                                let winner = (score1 > score2) ? game.player1Name : game.player2Name
-                                return (
-                                    <div id="score" key={game.room}>
-                                        <Text fontSize="2xl">{winner.slice(0, 1).toUpperCase() + winner.slice(1)} WINS!</Text>
-                                    </div>
-                                )
-                            })
-                        }
+                        <Flex justifyContent="center" alignItems="center" height="300px">
+                            {
+                                games && games.map(game => {
+                                    let score1 = game.score[0]
+                                    let score2 = game.score[1]
+                                    let winner = (score1 > score2) ? game.player1Name : game.player2Name
+                                    return (
+                                        <div id="score" key={game.room}>
+                                            <Text fontSize="2xl">{winner.slice(0, 1).toUpperCase() + winner.slice(1)} WINS!</Text>
+                                        </div>
+                                    )
+                                })
+                            }
                         </Flex>
                     </ModalBody>
 
@@ -606,6 +622,7 @@ const Scene = () => {
                         
                     </ModalFooter>
                 </ModalContent>
+                </ModalOverlay>
             </Modal>
         <Flex align="center" flexDirection="column" justifyContent="center" width="100%" height="auto">
             

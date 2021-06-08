@@ -31,7 +31,7 @@ const Chat = () => {
         socket.on("message", msg => {
             console.log(msg)
             setMessages(messages => {
-                if(messages.length > 7){
+                if(messages.length > 5){
                     messages.shift()
                 }
                 return [...messages, msg]
@@ -67,7 +67,7 @@ const Chat = () => {
    
 
     return (
-        <Flex className='room' flexDirection='column' width={{ base: "100%", sm: '525px' }} height={{ base: "100%", sm: "300px" }}>
+        <Flex className='room' flexDirection='column' width={{ base: "100%", sm: '525px' }} height="375px">
            
             <Heading className='heading' as='h4' bg='white' p='1rem 1.5rem' >
                 <Flex alignItems='center' justifyContent='space-between'>

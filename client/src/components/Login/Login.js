@@ -36,7 +36,8 @@ const Login = () => {
     })
 
     //Emits the login event and if successful redirects to chat and saves user data
-    const handleClick = () => {
+    const handleClick = (e) => {
+        e.preventDefault()
         socket.emit('login', { name, room }, error => {
             if (error) {
                 console.log(error)
@@ -71,7 +72,7 @@ const Login = () => {
                 <Input variant='filled' mr={{ base: "0", md: "4" }} mb={{ base: "4", md: "0" }} type="text" placeholder='User Name' value={name} onChange={e => setName(e.target.value)} />
                 <Input variant='filled' mr={{ base: "0", md: "4" }} mb={{ base: "4", md: "0" }} type="text" placeholder='Room Name' value={room} onChange={e => setRoom(e.target.value)}/>
                 
-                <IconButton colorScheme='blue' isRound='true' type="submit" icon={<RiArrowRightLine />}></IconButton>
+                <IconButton colorScheme='blue' isRound='true' type="submit" icon={<RiArrowRightLine />} onClick={handleClick}></IconButton>
 
                 
             </Flex>
