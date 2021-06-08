@@ -7,7 +7,7 @@ const SocketProvider = ({ children }) => {
     let ENDPOINT
     
     if(process.env.NODE_ENV === 'production'){
-        ENDPOINT = 'https://pong-rooms.herokuapp.com/'
+        ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
     }else{
         ENDPOINT = 'http://localhost:5000'
     }
