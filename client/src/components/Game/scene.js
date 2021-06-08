@@ -370,31 +370,20 @@ const Scene = () => {
             const time = performance.now();
             if(start){
                 
-                for (let i = 0; i < snapShots.length; i++) {
+                for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
-    
-    
-                    // if (gameState.time < time - 100 && gameState.time > time - 200) {
-                    //     oldState = snapShots[i].snapshots[2]
-                    // }
                     if (gameState.time > time - 2000) {
-    
                         oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
                 }
                 if (newState != undefined && oldState != undefined) {
-    
-                    
-                    
-                    
+
                     objects["player1"].position.set(...oldState.player1)
                     objects["player1"].position.lerp(new THREE.Vector3(-5, newState.player1[1], 0), .9)
                     objects["player2"].position.set(...oldState.player2)
                     objects["player2"].position.lerp(new THREE.Vector3(5, newState.player2[1], 0), .9)
-                    // if(wait){
-                    //     ballSpeed = .1
-                    // }
+
                     if(!wait){
                         objects["ball"].position.set(...oldState.ball)
                         objects["ball"].position.lerp(new THREE.Vector3(...newState.ball), 1)
@@ -431,8 +420,6 @@ const Scene = () => {
                     }
                 }
                 
-                // controls.getObject().position.y += dir // new behavior
-                
                 const play = objects[selected]
                 const ball = objects["ball"]
                 let pos1;
@@ -451,13 +438,6 @@ const Scene = () => {
                     // pos1 = [objects["player1"].position.x, objects["player1"].position.y, objects["player1"].position.z]
                     pos2 = [objects["player2"].position.x, objects["player2"].position.y + dir, objects["player2"].position.z]
                 }
-                
-                
-                    
-                
-                
-                
-                
 
                 prevTime = time;
                 
