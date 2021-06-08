@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
             // io.in(object.room).emit("move", game)
             io.in(object.room).emit("beginAgain")
             
-        }, 300)
+        }, 500)
         
     })
     socket.on('sendMessage', message => {
