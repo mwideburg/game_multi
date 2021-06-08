@@ -1,7 +1,8 @@
-# Backend for chat application using socket.io
+# Backend for pong and Aro's chat application using socket.io
+You can test the live Pong app [here](https://pong-rooms.herokuapp.com/#/)
+<br>
+You can test the live chat app [here](https://chattrio.netlify.app/). 
 
-You can test the live app [here](https://chattrio.netlify.app/). 
-The front end for this application can be found [here](https://github.com/AkileshAro/chat-client).
 
 ## Libraries used :
 - Express 
