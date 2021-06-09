@@ -426,7 +426,7 @@ const Scene = () => {
                 
                 for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
-                    if (gameState.time > time - 20) {
+                    if (gameState.time > time - 4000) {
                         oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
