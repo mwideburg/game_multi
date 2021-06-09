@@ -421,9 +421,9 @@ const Scene = () => {
     
         const animate = function () {
             requestAnimationFrame(animate);
-            const time = performance.now();
+           
             if(start){
-                
+                const time = performance.now();
                 for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
                     if (gameState.time > time - 4000) {
@@ -458,7 +458,7 @@ const Scene = () => {
             }
             
             if(controls != null && selected != 'none' && start){
-                
+                const time = performance.now();
                 const delta = (time - prevTime) / 1000;
                 
                 
