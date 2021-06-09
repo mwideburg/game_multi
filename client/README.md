@@ -1,20 +1,10 @@
-# Frontend for chat application using socket.io
+# Client Side for the Pong Game 
+### Along with Akilesh Aro's chat app
 
-![Chattr](https://github.com/AkileshAro/chat-client/blob/master/img.png?raw=true)
-You can test the live app [here](https://chattrio.netlify.app/). 
-The back end for this application can be found [here](https://github.com/AkileshAro/chat-server/).
+You can test the live Pong app [here](https://pong-rooms.herokuapp.com/#/)
+<br>
+You can test the live chat app [here](https://chattrio.netlify.app/). 
 
-## Libraries Used : 
-- ReactJS
-- Chakra UI
-- React scroll to bottom
-- React Icons
-- Socket IO Client
-
-## Installation Process :
-1. Clone/Download the project.
-2. Open the project directory on your machine using terminal or a code editor of your choice and type `npm i`
-3. Open up the file called **socketContext.js**. Change **ENDPOINT** to **localhost:5000** and you're good to go.
-4. Once the packages are installed and you've changed the ENDPOINT constant, type `npm start` and open up localhost:3000 to see your own version of Chattr.io.
-
-Cheers :+1:
+Thanks to Akilesh Aro for the chat and socket structure of this app.
+<br> 
+The back-end for Aro coded is here (https://github.com/AkileshAro/chat-server/).
