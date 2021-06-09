@@ -354,31 +354,25 @@ const Scene = () => {
             }
             // if ball goes off the top side (side of table)
             if (ball.position.y >= topWall) {
-                if(!topHit){
+                
                     ballDirY = -ballDirY;
                     if (!wallSound.isPlaying) {
                         wall.play()
                     }
-                    topHit = true
-                    setTimeout(() => {
-                        topHit = false
-                    }, 100)
-                }
+                    
+                
                 
             }
 
             // if ball goes off the bottom side (side of table)
             if (ball.position.y <= bottomWall) {
-                if (!bottomHit) {
+                
                     ballDirY = -ballDirY;
                     if (!wallSound.isPlaying) {
                         wall.play()
                     }
-                    bottomHit = true
-                    setTimeout(() => {
-                        bottomHit = false
-                    }, 100)
-                }
+                    
+                
 
             }
             if (ball.position.x >= rightWall + .5) {
@@ -432,7 +426,7 @@ const Scene = () => {
                 
                 for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
-                    if (gameState.time > time - 2000) {
+                    if (gameState.time > time - 20) {
                         oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
