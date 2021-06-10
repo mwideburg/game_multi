@@ -424,9 +424,10 @@ const Scene = () => {
            
             if(start){
                 const time = performance.now();
+                const delta = (time - prevTime) / 1000;
                 for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
-                    if (gameState.time > time - 5000) {
+                    if (gameState.time > (time - delta - 5000)) {
                         oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
