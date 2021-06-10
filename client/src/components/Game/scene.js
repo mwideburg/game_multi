@@ -144,7 +144,7 @@ const Scene = () => {
                 objects["ball"].position.set(...game.ball)
             }
             
-            if(snapShots.length > 20){
+            if(snapShots.length > 5000){
                 snapShots.shift()
             }
             
@@ -426,7 +426,7 @@ const Scene = () => {
                 const time = performance.now();
                 for (let i = 0; i < snapShots.length; i++) {                
                     const gameState = snapShots[i]
-                    if (gameState.time > time - 4000) {
+                    if (gameState.time > time - 5000) {
                         oldState = snapShots[i - 2]
                         newState = snapShots[i]
                     }
