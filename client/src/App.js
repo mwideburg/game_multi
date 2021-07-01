@@ -8,7 +8,7 @@ import './App.css'
 import { ChakraProvider, Flex } from "@chakra-ui/react"
 import { UsersProvider } from './usersContext'
 import DefaultPage from './components/DefaultPage'
-import Game from './components/Game/Game'
+import Game from './components/Game/game'
 function App() {
 
   return (
