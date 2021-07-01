@@ -126,21 +126,29 @@ const Scene = () => {
         let moveForward = false;
         let moveBackward = false
          
-        
+        const me = {
+            id: socket.id,
+            room: room,
+            dir: 0
+        }
         const onKeyDown = function (event) {
+
             switch (event.code) {
                 case 'ArrowUp':
                 case 'KeyW':
                     moveForward = true;
+                    me.dir = .06
                     break;
 
                 case 'ArrowDown':
                 case 'KeyS':
                     moveBackward = true;
+                    me.dir = -.06
                     break;
                 default:
                     break;
             }
+            socket.emit("move", me)
         };
         const onKeyUp = function (event) {
 
@@ -149,16 +157,18 @@ const Scene = () => {
                 case 'ArrowUp':
                 case 'KeyW':
                     moveForward = false;
+                    me.dir = 0
                     break;
 
                 case 'ArrowDown':
                 case 'KeyS':
                     moveBackward = false;
+                    me.dir = 0
                 default:
                     break;
 
             }
-
+            socket.emit("move", me)
         };
         if (window) {
             window.addEventListener('keydown', onKeyDown);
@@ -251,27 +261,26 @@ const Scene = () => {
                     }
                     
                 }
-                let dir = 0
+                // let dir = 0
                 if(controls != null){
-                    const me = {
-                        id: socket.id,
-                        room: room,
-                        dir: dir
-                    }
+                    // const me = {
+                    //     id: socket.id,
+                    //     room: room,
+                    //     dir: dir
+                    // }
                     if (moveForward) {
                         if (controls.getObject().position.y < topWall - .48) {
-                            me.dir = .05
+                            // me.dir = .05
                         }
                         
-                    }
-                    if (moveBackward) {
+                    }else if (moveBackward) {
                         if (controls.getObject().position.y > bottomWall + .475) {
-                            me.dir = -.05
+                            // me.dir = -.05
                         }
                         
                     }
                     
-                    socket.emit("move", me)
+                    
                    
                 }
 
