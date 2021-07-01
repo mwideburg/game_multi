@@ -178,6 +178,9 @@ class Game{
                 const add = (ball.dirY > 0) ? -.02 : .02
                 ball.setDirection(-ball.dirX, -ball.dirY + add)
 
+            } else if (ball.y <= y - .22 || ball.y >= y + .22){
+                const add = (ball.dirY > 0) ? .02 : -.02
+                ball.setDirection(-ball.dirX, ball.dirY + add)
             }else{
                 ball.setDirection(-ball.dirX, ball.dirY)
             }

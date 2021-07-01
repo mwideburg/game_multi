@@ -15,9 +15,9 @@ class Ball{
         const topWall = 3.7
         const bottomWall = -3.68
 
-        if(this.y <= bottomWall){
+        if(this.y < bottomWall){
             this.dirY = -this.dirY
-        }else if(this.y >= topWall){
+        }else if(this.y > topWall){
             this.dirY = -this.dirY
         }
         if(this.speed > 75){
@@ -66,7 +66,7 @@ class Ball{
         return false;
     }
     getRandomY(){
-        const rand = [.05, -.05, .06, -.06]
+        const rand = [.04, -.04, .03, -.03]
         this.dirY = rand[Math.floor(Math.random() * rand.length)]
     }
     setStart(){

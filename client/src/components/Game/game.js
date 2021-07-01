@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react"
 import Scene from './scene'
 import Chat from '../Chat/Chat'
-
+import { useToast } from "@chakra-ui/react"
 
 const Game = () => {
     const { name, room, game, setName, setRoom, setGame } = useContext(MainContext);
@@ -26,6 +26,9 @@ const Game = () => {
     const socket = useContext(SocketContext);
     const [score, setScore] = useState([0, 0])
     const [winner, setWinner] = useState("")
+    const [player1, setPlayer1Name] = useState("Player 1")
+    const [player2, setPlayer2Name] = useState("Computer Player")
+    const toast = useToast()
     useEffect(() => {
         
         socket.on("scored", score => {
@@ -36,6 +39,26 @@ const Game = () => {
             setWinner(winner)
             onOpen()
             
+        })
+        socket.on("addPlayer", player => {
+            if(player.selected === "player1"){
+                setPlayer1Name(player.name)
+            }
+            if (player.selected === "player2") {
+                setPlayer2Name(player.name)
+            }
+            
+
+        })
+        socket.on("notification", notif => {
+            toast({
+                position: "top",
+                title: notif?.title,
+                description: notif?.description,
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            })
         })
         
     })
@@ -78,8 +101,13 @@ const Game = () => {
             </Modal>
             <Flex align="center" flexDirection="column" justifyContent="center"  width="100vw" >
             <Button onClick={startGame}>Start Game</Button>
-                <Text fontSize="2xl" marginTop="20px">{score[0]} : {score[1]}</Text>
-
+                <Flex align="center" justifyContent="space-between" width="800px" >
+                    
+                    <Text fontSize="2xl" marginTop="20px" color="blue.300">{player1} </Text>
+                
+                    <Text fontSize="2xl" marginTop="20px" color="blue.300">{player2}</Text>
+                </Flex>
+            <Text fontSize="2xl" marginTop="20px">{score[0]} : {score[1]}</Text>
             </Flex>
             <Flex className="game" align="center" flexDirection="row" width={{ base: "100%" }} height={{ base: "100%", sm: "auto" }}>
             <Scene />
