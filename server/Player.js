@@ -9,6 +9,7 @@ class Player{
     }
 
     update(dt){
+        //update sped with delta
         this.y += dt * 60 * this.dir
         const topWall = 3.7
         const bottomWall = -3.68
