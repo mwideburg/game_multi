@@ -7,8 +7,11 @@ const SocketProvider = ({ children }) => {
     let ENDPOINT
     
     if(process.env.NODE_ENV === 'production'){
-        ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
+        console.log("google")
+        // ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
+        ENDPOINT = 'http://localhost:5000'
     }else{
+        console.log("Local")
         ENDPOINT = 'http://localhost:5000'
     }
     const socket = io(ENDPOINT, { transports: ['websocket', 'polling'] })

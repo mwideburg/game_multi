@@ -1,37 +1,67 @@
 
-
+const Game = require('./game')
 const { addUser, getUser, deleteUser, getUsers } = require('./users')
 
-const games = []
-const addGame = (id, room, scene) => {
-    const alreadyExists = games.find(game => game.id.trim().toLowerCase() === name.trim().toLowerCase())
+const games = {}
+const addGame = (id, name, room) => {
+    const alreadyExists = games[room]
     if(alreadyExists){
         const game = getGame(room)
-        return {scene}
+        return {game}
     }
-    const users = getUsers(room)
-    const game = { id, room, users }
-    games.push(game)
+    console.log('creating room')
+ 
+    const game = new Game(room, id)
+   
+    games[room] = game
+    // console.log(games)
     return { game }
 }
 
-const addPlayer = (room, user) => {
+const joinGame = (room, socket, name) => {
     
-    const game = getGame(room)
-    game.users.push(user)
-    return { game }
+    const game = games[room]
+    
+    const player = game.addPlayer(socket, name)
+    socket.in(room).emit("addPlayer", player)
+    return  player
 }
 
 const deletePlayer = (id, room) => {
-    const game = getGame(room)
-    let users = game.users.filter(user => {user.id != id})
+    const game_room = getGameById(id)[0]
+    if(game_room === undefined) return
     
-    if (index !== -1){
-        game.users = users
-        return {game}
+    if(games[game_room.room] === undefined) return
+    const sockets = games[game_room.room].removePlayer(id)
+
+    if (sockets.length === 0){
+        delete games[game_room.room]
     }
+    
+    
 }
 
-const getGame = (room) => games.filter(game => game.room === room)
+const playAgain = (room) => {
+    games[room].resetGame()
+}
 
-module.exports = { addGame, addPlayer, deletePlayer, getGame }
+const deleteGame = (id) => {
+  
+}
+
+const getGame = (room) => {
+    return games[room]
+}
+const getGameById = (id) => {
+    const room = Object.values(games).filter(game => {
+       
+        if(game.sockets === undefined) return
+        const sockets = Object.keys(game.sockets)
+        if(sockets.includes(id)){
+           
+            return game.room
+        }
+    })
+    return room
+}
+module.exports = { addGame, joinGame, deletePlayer, getGame, deleteGame, playAgain }

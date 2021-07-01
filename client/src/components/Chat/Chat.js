@@ -27,20 +27,20 @@ const Chat = () => {
 
 
     useEffect(() => {
-        
+
         socket.on("message", msg => {
             console.log(msg)
             setMessages(messages => {
-                if(messages.length > 5){
+                if (messages.length > 5) {
                     messages.shift()
                 }
                 return [...messages, msg]
             });
-            
-            
-            
+
+
+
         })
-        
+
         socket.on("notification", notif => {
             toast({
                 position: "top",
@@ -64,11 +64,11 @@ const Chat = () => {
         history.push('/')
         history.go(0)
     }
-   
+
 
     return (
         <Flex className='room' flexDirection='column' width={{ base: "100%", sm: '525px' }} height="375px">
-           
+
             <Heading className='heading' as='h4' bg='white' p='1rem 1.5rem' >
                 <Flex alignItems='center' justifyContent='space-between'>
                     <Menu >
@@ -113,12 +113,12 @@ const Chat = () => {
             </ScrollToBottom>
             <div className='form' >
                 <form onSubmit={handleSendMessage}>
-                <input type="text" placeholder='Enter Message' value={message} onChange={e => setMessage(e.target.value)} />
-                <IconButton colorScheme='green' type="submit" isRound='true' icon={<RiSendPlaneFill />} onClick={handleSendMessage} disabled={message === '' ? true : false}>Send</IconButton>
+                    <input type="text" placeholder='Enter Message' value={message} onChange={e => setMessage(e.target.value)} />
+                    <IconButton colorScheme='green' type="submit" isRound='true' icon={<RiSendPlaneFill />} onClick={handleSendMessage} disabled={message === '' ? true : false}>Send</IconButton>
 
                 </form>
             </div>
-            
+
         </Flex>
 
     )

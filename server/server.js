@@ -5,17 +5,17 @@ const io = require('socket.io')(http)
 const cors = require('cors')
 const path = require('path');
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers, updatePosition, updateGame, selectedPlayer, getGame, setGame, deleteGame, getGames, addScore, resetGame } = require('./users')
-// const { addGame, getGame, deletePlayer } = require('./games')
+const { addUser, getUser, deleteUser, getUsers} = require('./users')
+const { addGame, joinGame, deletePlayer, getGame, deleteGame, playAgain } = require('./games')
 
 
 // Serve static files from the React frontend app
-
+if (process.env.NODE_ENV === 'production') {
     app.use(express.static('../client/build'));
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '/../client', 'build', 'index.html'));
     })
-    
+}
 
 
 app.use(cors())
@@ -27,112 +27,44 @@ io.on('connection', (socket) => {
         const { user, error } = addUser(socket.id, name, room, null, null)
         
         if (error) return callback(error)
+        const game = addGame(socket.id, name, room)
+        
         socket.join(user.room)
         socket.in(room).emit('notification', {id: user.name, title: 'Someone\'s here', description: `${user.name} just entered the room` })
         io.in(room).emit('users', getUsers(room, socket.id))
-        console.log("getUsers")
-        const game = getGame(user.room, socket.id)
-        const games = getGames(user.room, socket.id)
-
-        io.in(room).emit('game', game)
-        io.in(room).emit('games', games)
         setTimeout(() => {
-            io.in(room).emit('playerAdded', user)
-        }, 500)
+            
+            socket.in(room).emit("addPlayer", joinGame(user.room, socket, name))
+        }, 500);
         
         callback()
     })
-    socket.on('addPlayer', object => {
-        const user = getUser(socket.id)
-        game = getGame(user.room, socket.id)
-        
-        if(game.status){
-            return;
-        }
-        updatePosition(user.id, object.position)
-        
-        io.in(user.room).emit('player', { user: user.name, object: object} )
+    socket.on('start', room => {
+        const game = getGame(room)
+        game.startGame()
     })
-
-    socket.on('start', () => {
-        
-        let user = getUser(socket.id)
-        let room = user.room;
-        setGame(room)
-        const games = getGames(user.room, socket.id)
-        const game = getGame(user.room)
-        io.in(room).emit('game', getGame(user.room))
-        io.in(room).emit('games', getGames(user.room))
-        
-        io.in(user.room).emit('startGame', game)
+    socket.on('move', me => {
+        const game = getGame(me.room)
+        game.handleInput(me.id, me.dir)
     })
-    socket.on('move', (gameState) => {
-       
-        const game = updateGame(gameState)
-      
-        io.in(gameState.room).emit('movePlayers', game)
-    })
-    socket.on("playerSelected", () => {
-        const user = getUser(socket.id);
-        game = getGame(user.room)
-
-        if (game.status) {
-            return;
-        }
-        let obj = selectedPlayer(user.id)
-        // updatePosition(user.position, user.id)
-
-        io.in(user.room).emit('selectPlayer', {selected: obj.selected, user: obj.user})
-    })
-
-    socket.on('playerScored', (object) => {
-        const randomDir = [-1, -.2, -1.5, -2, 1, 2, 1.5, .5, .7, 1.8]
-        const game = addScore(object.room, object.player)
-        const games = getGames(object.room)
-        if(game === undefined) return;
-        io.in(object.room).emit("newScores", game)
-        setTimeout(() => {
-            // const ballDirY = randomDir[Math.floor(Math.random() * randomDir.length)]
-            const ballSpeed = .1;
-            game.ballSpeed = ballSpeed
-            // game.ballDirY = ballDirY
-            io.in(object.room).emit("games", games)
-            // io.in(object.room).emit("move", game)
-            io.in(object.room).emit("beginAgain")
-            
-        }, 500)
-        
-    })
+    
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)
         io.in(user.room).emit('message', { user: user.name, text: message });
     })
-
-    socket.on('reset-game', room => {
-        const games = resetGame(room)
-        const game = getGame(room)
-        io.in(room).emit('games', games)
-        io.in(room).emit('playAgain')
-        // io.in(room).emit('startGame', game)
+    socket.on("reset", room => {
+        playAgain(room)
     })
+
     socket.on("disconnect", () => {
         console.log("User disconnected");
-       
-        // const users = getUsers(user.room)
-        // if (users.length === 1) {
-        //     deleteGame(user.room)
-        //     return;
-      
+        const player = deletePlayer(socket.id)
         const user = deleteUser(socket.id)
         
         if (user) {
             io.in(user.room).emit('notification', {id: user.name, title: 'Someone just left', description: `${user.name} just left the room` })
             
             io.in(user.room).emit('users', getUsers(user.room))
-            io.in(user.room).emit('games', getGames(user.room))
-            if(user.selected === "player1" || user.selected === "player2"){
-                io.in(user.room).emit("playerLeft", user)
-            }
             io.in(user.room).emit('deleteUser', user)
         }
         

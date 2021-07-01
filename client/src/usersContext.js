@@ -4,9 +4,9 @@ const UsersContext = React.createContext()
 
 const UsersProvider = ({ children }) => {
     const [users, setUsers] = useState([])
-    const [games, setGames] = useState([])
+    const [game, setGame] = useState([])
     return (
-        <UsersContext.Provider value={{ users, games, setUsers, setGames }}>
+        <UsersContext.Provider value={{ users, game, setUsers, setGame }}>
             {children}
         </UsersContext.Provider>
     )
