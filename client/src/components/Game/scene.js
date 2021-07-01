@@ -253,24 +253,26 @@ const Scene = () => {
                 }
                 let dir = 0
                 if(controls != null){
-
-                    if (moveForward) {
-                        if (controls.getObject().position.y < topWall - .48) {
-                            dir = .08
-                        }
-                    }
-                    if (moveBackward) {
-                        if (controls.getObject().position.y > bottomWall + .475) {
-                            dir = -.08
-                        }
-                        
-                    }
                     const me = {
                         id: socket.id,
                         room: room,
                         dir: dir
                     }
+                    if (moveForward) {
+                        if (controls.getObject().position.y < topWall - .48) {
+                            me.dir = .05
+                        }
+                        
+                    }
+                    if (moveBackward) {
+                        if (controls.getObject().position.y > bottomWall + .475) {
+                            me.dir = -.05
+                        }
+                        
+                    }
+                    
                     socket.emit("move", me)
+                   
                 }
 
                 renderer.render(scene, camera);
