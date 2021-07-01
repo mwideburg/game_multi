@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on("disconnect", () => {
-        console.log("User disconnected");
+        
         const player = deletePlayer(socket.id)
         const user = deleteUser(socket.id)
         

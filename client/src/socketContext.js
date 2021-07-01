@@ -7,9 +7,9 @@ const SocketProvider = ({ children }) => {
     let ENDPOINT
     
     if(process.env.NODE_ENV === 'production'){
-        console.log("google")
-        // ENDPOINT = 'https://pongrooms.uk.r.appspot.com/'
-        ENDPOINT = 'http://localhost:5000'
+        console.log("heroku")
+        ENDPOINT = 'https://pong-rooms.herokuapp.com/'
+        // ENDPOINT = 'http://localhost:5000'
     }else{
         console.log("Local")
         ENDPOINT = 'http://localhost:5000'

@@ -37,7 +37,7 @@ const Login = () => {
         e.preventDefault()
         socket.emit('login', { name, room }, error => {
             if (error) {
-                console.log(error)
+                
                 return toast({
                     position: "top",
                     title: "Error",

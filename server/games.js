@@ -9,12 +9,11 @@ const addGame = (id, name, room) => {
         const game = getGame(room)
         return {game}
     }
-    console.log('creating room')
  
     const game = new Game(room, id)
    
     games[room] = game
-    // console.log(games)
+
     return { game }
 }
 

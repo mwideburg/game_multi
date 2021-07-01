@@ -222,9 +222,9 @@ const Scene = () => {
             let delta = (now - last) / 1000
 
           
-                // console.log(objects["ball"].position)
+                
                 const { base, next, r } = getCurrentState()
-                // console.log(base)
+                
                 if(base && next){
                     if(base.name === name || next.name === name || base.computer === true){
                         

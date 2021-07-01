@@ -29,7 +29,6 @@ const Chat = () => {
     useEffect(() => {
 
         socket.on("message", msg => {
-            console.log(msg)
             setMessages(messages => {
                 if (messages.length > 5) {
                     messages.shift()

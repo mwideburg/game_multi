@@ -25,11 +25,11 @@ class Game{
         
         if(this.score[0] === 10){
             this.winner = "player1"
-            console.log("player1 Won")
+            
 
         }else if(this.score[1] === 10){
             this.winner = "player2"
-            console.log("player2 Won")
+            
         }else{
             return;
         }
@@ -144,7 +144,7 @@ class Game{
         }
         this.checkWin()
         if (this.shouldSendUpdate) {
-            console.log(this.players)
+            
             Object.keys(this.sockets).forEach(playerID => {
                 const socket = this.sockets[playerID];
                 const player = this.players[playerID];
