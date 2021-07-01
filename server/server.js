@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(cors())
 
-
+// Socket connection
 io.on('connection', (socket) => {
    
     socket.on('login', ({ name, room }, callback) => {
