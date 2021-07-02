@@ -69,7 +69,9 @@ const Game = () => {
     function resetGame(){
         socket.emit("reset", room)
         setScore([0, 0])
-        onClose()
+        setInterval(() => {
+            onClose()
+        }, 100)
     }
     return (
         <div width="100%" height="100%">

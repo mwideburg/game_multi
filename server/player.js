@@ -11,15 +11,15 @@ class Player{
 
     update(dt){
         //update sped with delta
-        if(this.dir === 0){
-            this.speed = 70
-        }
-        if(this.speed < 120 && this.dir != 0){
-            this.accelerateSpeed()
-        }
-        if(this.speed > 120){
-            this.speed = 120
-        }
+        // if(this.dir === 0){
+        //     this.speed = 70
+        // }
+        // if(this.speed < 120 && this.dir != 0){
+        //     this.accelerateSpeed()
+        // }
+        // if(this.speed > 120){
+        //     this.speed = 120
+        // }
         this.y += dt * this.speed * this.dir
         const topWall = 3.7
         const bottomWall = -3.68
