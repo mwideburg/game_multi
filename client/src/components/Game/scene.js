@@ -188,7 +188,7 @@ const Scene = () => {
             }
         }
         function currentServerTime() {
-            return firstServerTimestamp + (Date.now() - gameStart) - 100;
+            return firstServerTimestamp + (Date.now() - gameStart) - 50;
         }
 
         // Returns the index of the base update, the first game update before
