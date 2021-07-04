@@ -31,9 +31,10 @@ import './scene.scss'
 
 const Scene = () => {
     const ref = useRef();
-    const { name, room, game, setName, setRoom, setGame } = useContext(MainContext)
+    const { name, room, setName, setRoom } = useContext(MainContext)
+    
     const [scene, setScene] = useState(new THREE.Scene())
-    const { users } = useContext(UsersContext);
+    const { users, setUsers } = useContext(UsersContext);
     const socket = useContext(SocketContext)
     const history = useHistory()
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,7 +53,6 @@ const Scene = () => {
             0.1,
             1000
         );
-       
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(850, 500);
 
@@ -137,13 +137,13 @@ const Scene = () => {
                 case 'ArrowUp':
                 case 'KeyW':
                     moveForward = true;
-                    me.dir = .06
+                    me.dir = .05
                     break;
 
                 case 'ArrowDown':
                 case 'KeyS':
                     moveBackward = true;
-                    me.dir = -.06
+                    me.dir = -.05
                     break;
                 default:
                     break;
@@ -188,7 +188,7 @@ const Scene = () => {
             }
         }
         function currentServerTime() {
-            return firstServerTimestamp + (Date.now() - gameStart) - 50;
+            return firstServerTimestamp + (Date.now() - gameStart) - 35;
         }
 
         // Returns the index of the base update, the first game update before

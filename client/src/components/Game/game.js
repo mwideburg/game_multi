@@ -21,13 +21,14 @@ import Chat from '../Chat/Chat'
 import { useToast } from "@chakra-ui/react"
 
 const Game = () => {
-    const { name, room, game, setName, setRoom, setGame } = useContext(MainContext);
+    const { name, room, setName, setRoom, } = useContext(MainContext);
+    const { users, setUsers } = useContext(UsersContext);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const socket = useContext(SocketContext);
     const [score, setScore] = useState([0, 0])
     const [winner, setWinner] = useState("")
-    const [player1, setPlayer1Name] = useState("Player 1")
-    const [player2, setPlayer2Name] = useState("Computer Player")
+    const [players, setPlayers] = useState([])
+   
     const toast = useToast()
     useEffect(() => {
         
@@ -40,16 +41,10 @@ const Game = () => {
             onOpen()
             
         })
-        socket.on("addPlayer", player => {
-            if(player.selected === "player1"){
-                setPlayer1Name(player.name)
-            }
-            if (player.selected === "player2") {
-                setPlayer2Name(player.name)
-            }
-            
+        // socket.on("addPlayer", player => {
+        //     setPlayers([users.obj.player1, users.obj.player2])
 
-        })
+        // })
         socket.on("notification", notif => {
             toast({
                 position: "top",
@@ -105,9 +100,9 @@ const Game = () => {
             <Button onClick={startGame}>Start Game</Button>
                 <Flex align="center" justifyContent="space-between" width="800px" >
                     
-                    <Text fontSize="2xl" marginTop="20px" color="blue.300">{player1} </Text>
+                    {/* <Text fontSize="2xl" marginTop="20px" color="blue.300">{users.obj.player1 && users.obj.player1} </Text> */}
                 
-                    <Text fontSize="2xl" marginTop="20px" color="blue.300">{player2}</Text>
+                    {/* <Text fontSize="2xl" marginTop="20px" color="blue.300">{users.obj.player2 && users.obj.player1}</Text> */}
                 </Flex>
             <Text fontSize="2xl" marginTop="20px">{score[0]} : {score[1]}</Text>
             </Flex>

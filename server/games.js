@@ -4,17 +4,17 @@ const { addUser, getUser, deleteUser, getUsers } = require('./users')
 
 const games = {}
 const addGame = (id, name, room) => {
-    const alreadyExists = games[room]
-    if(alreadyExists){
-        const game = getGame(room)
-        return {game}
+   
+    if (games[room]){
+        
+        return games[room]
     }
- 
+    
     const game = new Game(room, id)
    
     games[room] = game
-
-    return { game }
+    
+    return  game 
 }
 
 const joinGame = (room, socket, name) => {
@@ -47,8 +47,18 @@ const playAgain = (room) => {
 const deleteGame = (id) => {
   
 }
-
+const getGames = () => {
+    return games
+}
+const getNames = (room) => {
+    const game = games[room]
+    return {
+        player1: game.player1,
+        player2: game.player2
+    }
+}
 const getGame = (room) => {
+   
     return games[room]
 }
 const getGameById = (id) => {
@@ -63,4 +73,4 @@ const getGameById = (id) => {
     })
     return room
 }
-module.exports = { addGame, joinGame, deletePlayer, getGame, deleteGame, playAgain }
+module.exports = { addGame, joinGame, deletePlayer, getGame, deleteGame, playAgain, getGames }

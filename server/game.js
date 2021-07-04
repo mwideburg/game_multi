@@ -8,6 +8,8 @@ class Game{
         this.id = id
         this.sockets = {};
         this.players = {};
+        this.player1 = "Player 1",
+        this.player2 = "player 2"
         this.room = room,
         this.start = false
         this.computer = null;
@@ -20,7 +22,9 @@ class Game{
         this.score = [0, 0]
         setInterval(this.update.bind(this), 1000/60)
     }
-
+    getPlayers(){
+        return this.players
+    }
     checkWin(){
         
         if(this.score[0] === 10){
@@ -73,6 +77,7 @@ class Game{
 
         if(num_of_players === 0) {
             selected = "player1"
+            
             x = -5
             this.play_comp = true;
         }else if(num_of_players === 1){
@@ -82,7 +87,9 @@ class Game{
         }else{
             return;
         }
-        this.players[socket.id] = new Player(socket.id, name, selected, x, 0, 0)
+        const player = new Player(socket.id, name, selected, x, 0, 0)
+        this.players[socket.id] = player
+        this[player.selected] = player.name
         return this.players[socket.id]
     }
 
@@ -175,8 +182,8 @@ class Game{
         
         if(dx < .3 && dx > 0 && ball.y >= y - .52 && ball.y <= y + .52){
             if(ball.y <= y - .42 || ball.y >= y + .42){
-                const add = (ball.dirY > 0) ? -.02 : .02
-                ball.setDirection(-ball.dirX, -ball.dirY + add)
+                const add = (ball.dirY > 0) ? .02 : -.02
+                ball.setDirection(-ball.dirX, ball.dirY + add)
 
             } else if (ball.y <= y - .22 || ball.y >= y + .22){
                 const add = (ball.dirY > 0) ? .02 : -.02

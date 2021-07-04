@@ -6,7 +6,7 @@ const cors = require('cors')
 const path = require('path');
 const PORT = process.env.PORT || 5000
 const { addUser, getUser, deleteUser, getUsers} = require('./users')
-const { addGame, joinGame, deletePlayer, getGame, deleteGame, playAgain } = require('./games')
+const { addGame, joinGame, deletePlayer, getGame, getGames, playAgain } = require('./games')
 
 
 // Serve static files from the React frontend app
@@ -28,13 +28,23 @@ io.on('connection', (socket) => {
         
         if (error) return callback(error)
         const game = addGame(socket.id, name, room)
-        
+        const player = joinGame(user.room, socket, name)
         socket.join(user.room)
         socket.in(room).emit('notification', {id: user.name, title: 'Someone\'s here', description: `${user.name} just entered the room` })
-        io.in(room).emit('users', getUsers(room, socket.id))
+        
+        const users = getUsers(room, socket.id)
+        const obj = {player1: game.player1, player2: game.player2}
+        io.in(room).emit('users', { users })
+        // io.in(room).emit('games', {games})
+        
+        
         setTimeout(() => {
             
-            socket.in(room).emit("addPlayer", joinGame(user.room, socket, name))
+            socket.in(room).emit("addPlayer", player)
+            
+
+
+            
         }, 500);
         
         callback()

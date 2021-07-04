@@ -7,6 +7,7 @@ import { MainProvider } from './mainContext'
 import './App.css'
 import { ChakraProvider, Flex } from "@chakra-ui/react"
 import { UsersProvider } from './usersContext'
+
 import DefaultPage from './components/DefaultPage'
 import Game from './components/Game/game'
 function App() {
@@ -15,6 +16,7 @@ function App() {
     <ChakraProvider>
       <MainProvider>
         <UsersProvider>
+
           <SocketProvider>
             <Flex className="App" align='center' flexDirection="column" justifyContent='center'>
               <HashRouter>
@@ -29,6 +31,7 @@ function App() {
 
             </Flex>
           </SocketProvider>
+
         </UsersProvider>
       </MainProvider>
     </ChakraProvider>
