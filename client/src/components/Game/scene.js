@@ -241,6 +241,7 @@ const Scene = () => {
                         const from = new THREE.Vector3(base.ball.x, base.ball.y, 0)
                         const to = new THREE.Vector3(next.ball.x, next.ball.y, 0)
                         objects["ball"].position.lerpVectors(from, to, r)
+                        
                         if(base.player1 && next.player1){
                             
                             objects["player1"].position.lerpVectors(
