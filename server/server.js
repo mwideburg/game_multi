@@ -32,7 +32,6 @@ io.on('connection', (socket) => {
         socket.join(user.room)
         socket.in(room).emit('notification', {id: user.name, title: 'Someone\'s here', description: `${user.name} just entered the room` })
         setGame(user, game)
-        console.log(player)
         setPlayer(player, user)
         const users = getUsers(room, socket.id)
        

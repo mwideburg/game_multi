@@ -53,19 +53,28 @@ const Game = () => {
         })
         socket.on("started", () => {
             setMessage("GAME ON!!!")
+            const mesEle = document.getElementById("message")
             const sBtn = document.getElementById("start")
+            
             if(sBtn){
-                sBtn.style.visibility = "hidden"
+                sBtn.style.display = "none"
+            }
+            if(mesEle){
+                mesEle.style.display = "flex"
             }
         })
         socket.on("resetGame", () => {
             const sBtn = document.getElementById("start")
+            const mesEle = document.getElementById("message")
             setInterval(() => {
                 onClose()
             }, 100)
             setScore([0, 0])
             if (sBtn) {
-                sBtn.style.visibility = "visible"
+                sBtn.style.display = "flex"
+            }
+            if (mesEle) {
+                mesEle.style.display = "none"
             }
         })
         
@@ -73,11 +82,20 @@ const Game = () => {
     
     function startGame(){
         socket.emit("start", room)
-        document.getElementById("start").style.visibility = "hidden"
+        document.getElementById("start").style.display = "none"
+        setMessage("GAME ON!!!")
+        const mesEle = document.getElementById("message")
+        if (mesEle) {
+            mesEle.style.display = "flex"
+        }
     }
     function resetGame(){
         socket.emit("reset", room)
-        document.getElementById("start").style.visibility = "visible"
+        document.getElementById("start").style.display = "flex"
+        const mesEle = document.getElementById("message")
+        if (mesEle) {
+            mesEle.style.display = "none"
+        }
         setScore([0, 0])
         setInterval(() => {
             onClose()
@@ -113,14 +131,20 @@ const Game = () => {
                 </ModalOverlay>
             </Modal>
             <Flex align="center" flexDirection="column" justifyContent="center"  width="100vw" >
-                {startButton && 
-                    <Button id="start" onClick={startGame}>Start Game</Button>
+                {startButton &&
+                <>
+                    <Button id="start" onClick={startGame} style={{height: "60px" }}>Start Game</Button>
+                    <Text id="message" fontSize="2xl" marginTop="20px" color="blue" style={{display: "none", height:"60px", margin:"0px"}}>
+                        {message}
+                    </Text>
+                </>
                 }
                 {(!startButton) &&
-                    <Text fontSize="2xl" marginTop="20px">
+                    <Text fontSize="2xl" marginTop="20px" color="blue">
                         {message}
                     </Text>
                 }
+                
                 
             
                 <Flex align="center" justifyContent="space-between" width="800px" >
