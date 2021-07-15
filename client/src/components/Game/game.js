@@ -21,13 +21,13 @@ import Chat from '../Chat/Chat'
 import { useToast } from "@chakra-ui/react"
 
 const Game = () => {
-    const { name, room, setName, setRoom, } = useContext(MainContext);
+    const { name, room, game, id, setName, setRoom, setGame, setID} = useContext(MainContext);
     const { users, setUsers } = useContext(UsersContext);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const socket = useContext(SocketContext);
     const [score, setScore] = useState([0, 0])
     const [winner, setWinner] = useState("")
-    const [players, setPlayers] = useState([])
+    const [players, setPlayers] = useState(["Player 1", "Computer Player"])
    
     const toast = useToast()
     useEffect(() => {
@@ -41,28 +41,21 @@ const Game = () => {
             onOpen()
             
         })
-        // socket.on("addPlayer", player => {
-        //     setPlayers([users.obj.player1, users.obj.player2])
-
-        // })
-        socket.on("notification", notif => {
-            toast({
-                position: "top",
-                title: notif?.title,
-                description: notif?.description,
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            })
+        users.forEach(user => {
+            if(user.name === name){
+                setGame(user.game)
+            }
         })
         
     })
     
     function startGame(){
         socket.emit("start", room)
+        document.getElementById("start").style.visibility = "hidden"
     }
     function resetGame(){
         socket.emit("reset", room)
+        document.getElementById("start").style.visibility = "visible"
         setScore([0, 0])
         setInterval(() => {
             onClose()
@@ -85,6 +78,7 @@ const Game = () => {
 
                                 
                             </Flex>
+                            
                         </ModalBody>
 
                         <ModalFooter justifyContent="space-around">
@@ -97,12 +91,15 @@ const Game = () => {
                 </ModalOverlay>
             </Modal>
             <Flex align="center" flexDirection="column" justifyContent="center"  width="100vw" >
-            <Button onClick={startGame}>Start Game</Button>
+            <Button id="start" onClick={startGame}>Start Game</Button>
                 <Flex align="center" justifyContent="space-between" width="800px" >
+                    <Text fontSize="2xl" marginTop="20px">
+                        {game && game.player1.slice(0, 1).toUpperCase() + game.player1.slice(1)}
+                    </Text>
+                    <Text fontSize="2xl" marginTop="20px">
+                        {game && game.player2.slice(0, 1).toUpperCase() + game.player2.slice(1)}
+                    </Text>
                     
-                    {/* <Text fontSize="2xl" marginTop="20px" color="blue.300">{users.obj.player1 && users.obj.player1} </Text> */}
-                
-                    {/* <Text fontSize="2xl" marginTop="20px" color="blue.300">{users.obj.player2 && users.obj.player1}</Text> */}
                 </Flex>
             <Text fontSize="2xl" marginTop="20px">{score[0]} : {score[1]}</Text>
             </Flex>

@@ -5,7 +5,7 @@ const io = require('socket.io')(http)
 const cors = require('cors')
 const path = require('path');
 const PORT = process.env.PORT || 5000
-const { addUser, getUser, deleteUser, getUsers} = require('./users')
+const { addUser, getUser, deleteUser, getUsers, setGame, setPlayer, updateGame} = require('./users')
 const { addGame, joinGame, deletePlayer, getGame, getGames, playAgain } = require('./games')
 
 
@@ -31,21 +31,15 @@ io.on('connection', (socket) => {
         const player = joinGame(user.room, socket, name)
         socket.join(user.room)
         socket.in(room).emit('notification', {id: user.name, title: 'Someone\'s here', description: `${user.name} just entered the room` })
-        
+        setGame(user, game)
+        setPlayer(player, user)
         const users = getUsers(room, socket.id)
-        const obj = {player1: game.player1, player2: game.player2}
-        io.in(room).emit('users', { users })
+       
+        io.in(room).emit('users', users )
         // io.in(room).emit('games', {games})
         
         
-        setTimeout(() => {
-            
-            socket.in(room).emit("addPlayer", player)
-            
-
-
-            
-        }, 500);
+        
         
         callback()
     })
@@ -72,6 +66,8 @@ io.on('connection', (socket) => {
         const user = deleteUser(socket.id)
         
         if (user) {
+            updateGame(user, getGame(user.room))
+            
             io.in(user.room).emit('notification', {id: user.name, title: 'Someone just left', description: `${user.name} just left the room` })
             
             io.in(user.room).emit('users', getUsers(user.room))

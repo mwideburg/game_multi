@@ -9,7 +9,7 @@ class Game{
         this.sockets = {};
         this.players = {};
         this.player1 = "Player 1",
-        this.player2 = "player 2"
+        this.player2 = "Computer Player"
         this.room = room,
         this.start = false
         this.computer = null;
@@ -77,11 +77,12 @@ class Game{
 
         if(num_of_players === 0) {
             selected = "player1"
-            
+            this.player1 = name
             x = -5
             this.play_comp = true;
         }else if(num_of_players === 1){
             selected = "player2"
+            this.player2 = name
             x = 5
             this.play_comp = false;
         }else{
@@ -102,13 +103,18 @@ class Game{
             if(keys.length > 0){
                 const atributes = (this.players[keys[0]].selected === "player1") ? ["player2", 5, 0, .1] : ["player1", -5, 0, .1]
                 this.computer = new ComputerPlayer(...atributes)
+                if(this.computer.selected === "player2"){
+                    this.player2 = "Computer Player"
+                }else{
+                    this.player1 = "Computer Player"
+                }
             }
-            
+ 
         }
         return Object.keys(this.sockets)
     }
 
-    handleInput(id, dir){
+    handleInput(id, dir, pos){
        
         if(this.players[id]){
             this.players[id].setDirection(dir)

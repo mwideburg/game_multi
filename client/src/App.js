@@ -16,7 +16,6 @@ function App() {
     <ChakraProvider>
       <MainProvider>
         <UsersProvider>
-
           <SocketProvider>
             <Flex className="App" align='center' flexDirection="column" justifyContent='center'>
               <HashRouter>
@@ -28,10 +27,8 @@ function App() {
                   <Route component={DefaultPage} />
                 </Switch>
               </HashRouter>
-
             </Flex>
           </SocketProvider>
-
         </UsersProvider>
       </MainProvider>
     </ChakraProvider>

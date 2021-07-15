@@ -62,7 +62,7 @@ const Login = () => {
 
     return (
         <Flex className='login' flexDirection='column' mb='8'>
-            <Heading as="h1" size="4xl" textAlign='center' mb='8' fontFamily='DM Sans' fontWeight='600' letterSpacing='-2px'>Pong</Heading>
+            <Heading as="h1" size="4xl" textAlign='center' mb='8' fontFamily='DM Sans' fontWeight='600' letterSpacing='-2px'>Pong Rooms</Heading>
             <form onSubmit={handleClick}>
                 <Flex className="form" gap='1rem' flexDirection={{ base: "column", md: "row" }}>
 

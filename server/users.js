@@ -10,19 +10,33 @@ const addUser = (id, name, room) => {
     if (!room) return { error: "Room is required" }
     
     
-    const user = { id, name, room, position: undefined, selected: "none", ball: null }
+    const user = { id, name, room, position: undefined, game: null, selected: "none", ball: null }
     
     
     users.push(user)
     return { user }
 }
-
-
+const setGame = (user, game) => {
+    const use = getUser(user.id)
+    use.game = { room: game.room, player1: game.player1, player2: game.player2 }
+    updateGame(user, game)
+    return use
+}
+const updateGame = (user, game) => {
+    users.forEach(u => {
+        if (u.room === user.room) {
+            u.game = { room: game.room, player1: game.player1, player2: game.player2 }
+        }
+    })
+}
 const getUser = id => {
     let user = users.find(user => user.id == id)
     return user
 }
-
+const setPlayer = (player, user) => {
+    const use = getUser(user.id)
+    use.selected = player.selected
+}
 
 const deleteUser = (id) => {
   
@@ -36,4 +50,4 @@ const deleteUser = (id) => {
 const getUsers = (room) => users.filter(user => user.room === room)
 
 
-module.exports = { addUser, getUser, deleteUser, getUsers}
+module.exports = { addUser, getUser, deleteUser, getUsers, setGame, setPlayer, updateGame}

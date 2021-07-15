@@ -129,7 +129,17 @@ const Scene = () => {
         const me = {
             id: socket.id,
             room: room,
-            dir: 0
+            dir: 0,
+            // pos: objects["player1"].position
+        }
+
+        const movePlayer = (player, delta) => {
+
+            // const new_y = new THREE.Vector3(-5, objects.player1.position.y + me.dir, 0)
+            // objects[player].position.lerpVectors(objects.player1.position, new_y, delta * 70)
+            // me.pos = objects[player].position
+            // console.log(objects[player].position)
+            // socket.emit("move", me) 
         }
         const onKeyDown = function (event) {
 
@@ -174,6 +184,7 @@ const Scene = () => {
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('keyup', onKeyUp);
         }
+        
         function processGameUpdate(update) {
             if (!firstServerTimestamp) {
                 firstServerTimestamp = update.t;
@@ -188,7 +199,7 @@ const Scene = () => {
             }
         }
         function currentServerTime() {
-            return firstServerTimestamp + (Date.now() - gameStart) - 35;
+            return firstServerTimestamp + (Date.now() - gameStart) - 50;
         }
 
         // Returns the index of the base update, the first game update before
@@ -262,32 +273,16 @@ const Scene = () => {
                     }
                     
                 }
-                // let dir = 0
-                if(controls != null){
-                    // const me = {
-                    //     id: socket.id,
-                    //     room: room,
-                    //     dir: dir
-                    // }
-                    if (moveForward) {
-                        if (controls.getObject().position.y < topWall - .48) {
-                            // me.dir = .05
-                        }
-                        
-                    }else if (moveBackward) {
-                        if (controls.getObject().position.y > bottomWall + .475) {
-                            // me.dir = -.05
-                        }
-                        
-                    }
-                    
-                    
-                   
+                if(moveForward){
+                    movePlayer("player1", delta)
+                }
+                if(moveBackward){
+                    movePlayer("player1", delta)
                 }
 
                 renderer.render(scene, camera);
             
-
+            last = now
         };
         
         animate();

@@ -11,6 +11,7 @@ class Player{
 
     update(dt){
         this.y += dt * this.speed * this.dir
+        
         const topWall = 3.7
         const bottomWall = -3.68
         if (this.y > topWall - .42){
@@ -18,6 +19,10 @@ class Player{
         } else if (this.y < bottomWall + .39){
             this.y = bottomWall + .39
         }
+    }
+    setPosition(pos){
+        this.x = pos.x
+        this.y = pos.y
     }
     accelerateSpeed(){
         this.speed += 1
