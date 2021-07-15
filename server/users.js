@@ -34,6 +34,8 @@ const getUser = id => {
     return user
 }
 const setPlayer = (player, user) => {
+    if(player === undefined) return;
+    console.log(player)
     const use = getUser(user.id)
     use.selected = player.selected
 }

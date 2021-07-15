@@ -126,7 +126,7 @@ class Game{
         this.start = true
     }
     update(){
-        this.play = false;
+        
         const now = Date.now()
         const dt = (now - this.lastUpdateTime) / 1000
         this.lastUpdateTime = now
@@ -161,6 +161,7 @@ class Game{
             Object.keys(this.sockets).forEach(id => {
                 const socket = this.sockets[id]
                 socket.emit("scored", score)
+                this.play = "scoreSound"
             })
         }
         this.checkWin()
@@ -189,6 +190,11 @@ class Game{
             this.shouldSendUpdate = false;
         } else {
             this.shouldSendUpdate = true;
+        }
+        if(this.play != false){
+            setTimeout(() => {
+                this.play = false
+            }, 100)
         }
     }
     checkCollision(player, ball){

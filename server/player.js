@@ -6,7 +6,7 @@ class Player{
         this.y = y;
         this.selected = selected;
         this.dir = dir;
-        this.speed = 70;
+        this.speed = 80;
     }
 
     update(dt){

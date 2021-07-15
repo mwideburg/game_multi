@@ -110,11 +110,7 @@ const Scene = () => {
             processGameUpdate(game)
         })
 
-        socket.on("scored", () => {
-            if(!scoreMP3.isPlaying){
-                scoreMP3.play()
-            }
-        })
+        
         
         
         let controls = null;
@@ -236,6 +232,8 @@ const Scene = () => {
             }
         }
         let last = Date.now()
+        let scored = false
+        
         const animate = function () {
             requestAnimationFrame(animate);
             let now = Date.now()
@@ -246,13 +244,16 @@ const Scene = () => {
                 const { base, next, r } = getCurrentState()
                 
                 if(base && next){
-                    if(base.name === name || next.name === name || base.computer === true){
+                    
                         
                         const from = new THREE.Vector3(base.ball.x, base.ball.y, 0)
                         const to = new THREE.Vector3(next.ball.x, next.ball.y, 0)
+                        
                         objects["ball"].position.lerpVectors(from, to, r)
+                        
                         if(next.play === "wall" || base.play === "wall") wall.play()
                         if (next.play === "paddle" || base.play === "paddle") paddle.play()
+                        if (next.play === "scoreSound" || base.play === "scourSound") scoreMP3.play()
                         if(base.player1 && next.player1){
                             
                             objects["player1"].position.lerpVectors(
@@ -270,7 +271,7 @@ const Scene = () => {
                                 r
                             )
                         }
-                    }
+                    
                     
                 }
                 
