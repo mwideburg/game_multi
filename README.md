@@ -15,6 +15,7 @@ npm run dev
 
 # Acknowledgments
 This project would not have been possible without two main sources of inspiration and code.
+<br>
 [Akilesh Chat.io](https://github.com/AkileshRao/chat-client "Akilesh Chat.io")
 <br>
 [Victor Zhou's .io game tuturoial](https://victorzhou.com/blog/build-an-io-game-part-1/ "How to Build A Multiplayer Game")
