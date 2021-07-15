@@ -2,7 +2,7 @@
 This is a basic online multiplayer pong game built with socket.io, express, node and react. The end goal of this project is to have a solid structure for making a 3d multi player game in the future.
 
 
-![Pong Rooms gif](https://github.com/mwideburg/pong-rooms/pong-game.gif "Pong Rooms")
+![Pong Rooms gif](https://github.com/mwideburg/pong-rooms/blob/main/pong-game.gif "Pong Rooms")
 
 # Getting Started
 Clone or download the repository. This project is broken up into client and server side applications, in order to run the application properly you will have to run...
