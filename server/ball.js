@@ -15,21 +15,24 @@ class Ball{
         const topWall = 3.7
         const bottomWall = -3.68
 
-        if(this.y < bottomWall){
-            if(this.dirY < 0){
-                this.dirY = -this.dirY
-            }
-        }else if(this.y > topWall){
-            if (this.dirY > 0) {
-                this.dirY = -this.dirY
-            }
-        }
+        
         if(this.speed > 75){
             this.speed -= 1.2
         }else if(this.speed > 50){
             this.speed -= .8
         }else if(this.speed > 30){
             this.speed -= .1
+        }
+        if (this.y < bottomWall) {
+            if (this.dirY < 0) {
+                this.dirY = -this.dirY
+            }
+            return true
+        } else if (this.y > topWall) {
+            if (this.dirY > 0) {
+                this.dirY = -this.dirY
+            }
+            return true
         }
     }
     reset(){

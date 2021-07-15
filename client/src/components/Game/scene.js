@@ -109,6 +109,12 @@ const Scene = () => {
 
             processGameUpdate(game)
         })
+
+        socket.on("scored", () => {
+            if(!scoreMP3.isPlaying){
+                scoreMP3.play()
+            }
+        })
         
         
         let controls = null;
@@ -130,17 +136,10 @@ const Scene = () => {
             id: socket.id,
             room: room,
             dir: 0,
-            // pos: objects["player1"].position
+           
         }
 
-        const movePlayer = (player, delta) => {
-
-            // const new_y = new THREE.Vector3(-5, objects.player1.position.y + me.dir, 0)
-            // objects[player].position.lerpVectors(objects.player1.position, new_y, delta * 70)
-            // me.pos = objects[player].position
-            // console.log(objects[player].position)
-            // socket.emit("move", me) 
-        }
+        
         const onKeyDown = function (event) {
 
             switch (event.code) {
@@ -252,7 +251,8 @@ const Scene = () => {
                         const from = new THREE.Vector3(base.ball.x, base.ball.y, 0)
                         const to = new THREE.Vector3(next.ball.x, next.ball.y, 0)
                         objects["ball"].position.lerpVectors(from, to, r)
-                        
+                        if(next.play === "wall" || base.play === "wall") wall.play()
+                        if (next.play === "paddle" || base.play === "paddle") paddle.play()
                         if(base.player1 && next.player1){
                             
                             objects["player1"].position.lerpVectors(
@@ -273,12 +273,7 @@ const Scene = () => {
                     }
                     
                 }
-                if(moveForward){
-                    movePlayer("player1", delta)
-                }
-                if(moveBackward){
-                    movePlayer("player1", delta)
-                }
+                
 
                 renderer.render(scene, camera);
             

@@ -20,6 +20,7 @@ class Game{
         this.shouldSendUpdate = false,
         this.winner = null
         this.score = [0, 0]
+        this.play = false
         setInterval(this.update.bind(this), 1000/60)
     }
     getPlayers(){
@@ -125,7 +126,7 @@ class Game{
         this.start = true
     }
     update(){
-        
+        this.play = false;
         const now = Date.now()
         const dt = (now - this.lastUpdateTime) / 1000
         this.lastUpdateTime = now
@@ -138,17 +139,24 @@ class Game{
         if(score){
             this.score = score
         }
-        this.ball.update(dt)
+        if(this.ball.update(dt)){
+            this.play = "wall"
+        }
         if(this.play_comp){
             this.computer.update(dt, this.ball)
-            this.checkCollision(this.computer, this.ball)
+            if(this.checkCollision(this.computer, this.ball)){
+                this.play = "paddle"
+            }
         }
         Object.keys(this.players).forEach(playerID => {
             const player = this.players[playerID]
+            const socket = this.sockets[playerID]
             player.update(dt)
-            this.checkCollision(player, this.ball)
-            
+            if( this.checkCollision(player, this.ball)){
+               this.play = "paddle"
+            }
         })
+        
         if (score) {
             Object.keys(this.sockets).forEach(id => {
                 const socket = this.sockets[id]
@@ -190,14 +198,17 @@ class Game{
             if(ball.y <= y - .42 || ball.y >= y + .42){
                 const add = (ball.dirY > 0) ? .02 : -.02
                 ball.setDirection(-ball.dirX, ball.dirY + add)
-
+                
             } else if (ball.y <= y - .22 || ball.y >= y + .22){
                 const add = (ball.dirY > 0) ? .02 : -.02
                 ball.setDirection(-ball.dirX, ball.dirY + add)
+               
             }else{
                 ball.setDirection(-ball.dirX, ball.dirY)
+                
             }
             ball.setSpeed()
+            return true
         }   
        
     }
@@ -209,7 +220,8 @@ class Game{
             player2: "",
             ball: "",
             computer: false,
-            score: [0, 0]
+            score: [0, 0],
+            play: this.play
         }
         Object.keys(this.players).forEach(playerID => {
             const player = this.players[playerID]
@@ -243,7 +255,8 @@ class Game{
                 [other_selected]: other.serializeForUpdate(),
                 ball: this.ball.serializeForUpdate(),
                 computer: this.play_comp,
-                score: this.score
+                score: this.score,
+                play: this.play
 
             }
         }else{
@@ -254,7 +267,8 @@ class Game{
                 [this.computer.selected]: this.computer.serializeForUpdate(),
                 ball: this.ball.serializeForUpdate(),
                 computer: this.play_comp,
-                score: this.score
+                score: this.score,
+                play: this.play
 
             }
         }
