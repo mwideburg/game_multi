@@ -50,6 +50,9 @@ const Game = () => {
                 setStartButton(true)
                 
             }
+            if(user.game.start){
+                setMessage("GAME ON!!!")
+            }
         })
         socket.on("started", () => {
             setMessage("GAME ON!!!")
