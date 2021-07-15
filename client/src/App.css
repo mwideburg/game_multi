@@ -1,10 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-
+body{
+    margin: 0px;
+}
 .App{
     font-family: 'DM Sans';
     height: 100vh;
     background: #D0E0EF;
     min-width: 900px;
+}
+.Mobile{
+    font-family: 'DM Sans';
+    height: 100vh;
+    background: #D0E0EF;
+    margin: 0px;
+    text-align: center;
 }
 
 *{
