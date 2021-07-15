@@ -18,14 +18,14 @@ const addUser = (id, name, room) => {
 }
 const setGame = (user, game) => {
     const use = getUser(user.id)
-    use.game = { room: game.room, player1: game.player1, player2: game.player2 }
+    use.game = { room: game.room, player1: game.player1, player2: game.player2, start: game.start }
     updateGame(user, game)
     return use
 }
 const updateGame = (user, game) => {
     users.forEach(u => {
         if (u.room === user.room) {
-            u.game = { room: game.room, player1: game.player1, player2: game.player2 }
+            u.game = { room: game.room, player1: game.player1, player2: game.player2, start: game.start }
         }
     })
 }

@@ -27,7 +27,8 @@ const Game = () => {
     const socket = useContext(SocketContext);
     const [score, setScore] = useState([0, 0])
     const [winner, setWinner] = useState("")
-    const [players, setPlayers] = useState(["Player 1", "Computer Player"])
+    const [startButton, setStartButton] = useState(false)
+    const [message, setMessage] = useState("Waiting for game to start...")
    
     const toast = useToast()
     useEffect(() => {
@@ -44,6 +45,27 @@ const Game = () => {
         users.forEach(user => {
             if(user.name === name){
                 setGame(user.game)
+            }
+            if(user.game.player1 === name || user.game.player2 === name){
+                setStartButton(true)
+                
+            }
+        })
+        socket.on("started", () => {
+            setMessage("GAME ON!!!")
+            const sBtn = document.getElementById("start")
+            if(sBtn){
+                sBtn.style.visibility = "hidden"
+            }
+        })
+        socket.on("resetGame", () => {
+            const sBtn = document.getElementById("start")
+            setInterval(() => {
+                onClose()
+            }, 100)
+            setScore([0, 0])
+            if (sBtn) {
+                sBtn.style.visibility = "visible"
             }
         })
         
@@ -91,7 +113,16 @@ const Game = () => {
                 </ModalOverlay>
             </Modal>
             <Flex align="center" flexDirection="column" justifyContent="center"  width="100vw" >
-            <Button id="start" onClick={startGame}>Start Game</Button>
+                {startButton && 
+                    <Button id="start" onClick={startGame}>Start Game</Button>
+                }
+                {(!startButton) &&
+                    <Text fontSize="2xl" marginTop="20px">
+                        {message}
+                    </Text>
+                }
+                
+            
                 <Flex align="center" justifyContent="space-between" width="800px" >
                     <Text fontSize="2xl" marginTop="20px">
                         {game && game.player1.slice(0, 1).toUpperCase() + game.player1.slice(1)}

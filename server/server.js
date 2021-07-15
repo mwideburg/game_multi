@@ -47,6 +47,7 @@ io.on('connection', (socket) => {
     socket.on('start', room => {
         const game = getGame(room)
         game.startGame()
+        socket.in(room).emit("started")
     })
     socket.on('move', me => {
         const game = getGame(me.room)
@@ -59,6 +60,7 @@ io.on('connection', (socket) => {
     })
     socket.on("reset", room => {
         playAgain(room)
+        socket.in(room).emit("resetGame")
     })
 
     socket.on("disconnect", () => {
