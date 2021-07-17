@@ -10,6 +10,7 @@ import { UsersProvider } from './usersContext'
 
 import DefaultPage from './components/DefaultPage'
 import Game from './components/Game/game'
+import MultiWorld from './components/MultiWorld/MultiContainer'
 var is_mobile = !!navigator.userAgent.match(/iphone|android|blackberry/ig) || false;
 function App() {
   if(!is_mobile){
@@ -23,7 +24,7 @@ function App() {
                   <Switch>
                     <Route exact path='/' component={Login} />
   
-                    <Route exact path='/game/:room' component={Game} />
+                    <Route exact path='/game/:room' component={MultiWorld} />
                     <Route exact path='/chat/:room' component={Chat} />
                     <Route component={DefaultPage} />
                   </Switch>

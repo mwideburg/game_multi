@@ -17,6 +17,7 @@ import {
     useDisclosure
 } from "@chakra-ui/react"
 import Scene from './scene'
+
 import Chat from '../Chat/Chat'
 import { useToast } from "@chakra-ui/react"
 
@@ -39,6 +40,7 @@ const Game = () => {
         })
         socket.on("winner", winner => {
             setWinner(winner)
+            console.log("HEY")
             onOpen()
             
         })

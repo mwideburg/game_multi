@@ -52,7 +52,10 @@ io.on('connection', (socket) => {
         const game = getGame(me.room)
         game.handleInput(me.id, me.dir)
     })
-    
+    socket.on('updatePlayer', me => {
+        console.log(me)
+        io.in(me.room).emit("updateMulti", me)
+    })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)
         io.in(user.room).emit('message', { user: user.name, text: message });
