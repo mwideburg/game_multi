@@ -24,7 +24,7 @@ function App() {
                   <Switch>
                     <Route exact path='/' component={Login} />
   
-                    <Route exact path='/game/:room' component={MultiWorld} />
+                    <Route exact path='/game/:room' component={Game} />
                     <Route exact path='/chat/:room' component={Chat} />
                     <Route component={DefaultPage} />
                   </Switch>

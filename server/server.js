@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     })
     socket.on('updatePlayer', me => {
         console.log(me)
-        io.in(me.room).emit("updateMulti", me)
+        // io.in(me.room).emit("updateMulti", me)
     })
     socket.on('sendMessage', message => {
         const user = getUser(socket.id)

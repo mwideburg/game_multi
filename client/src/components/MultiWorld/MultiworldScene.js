@@ -129,9 +129,6 @@ const MultiWorldScene = () => {
                         canJump = false;
                         break;
                 }
-                
-            const me = handleInput(velocity, direction)
-            socket.emit("updatePlayer", me)
         };
         const onKeyUp = (event) => {
 
@@ -160,60 +157,14 @@ const MultiWorldScene = () => {
                     run = false;
                     break;
             }
-            const me = handleInput(velocity, direction)
-            socket.emit("updatePlayer", me)
 
         };
         document.addEventListener('keydown', onKeyDown, false);
         document.addEventListener('keyup', onKeyUp, false);
         const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
-        const mouse = new THREE.Vector2();
         let last = Date.now()
-        let showControl = 0
-        const handleInput = (velocity, direction) => {
-            const me = {
-                id: socket.id,
-                room: room,
-                x: controls.getObject().position.x,
-                y: controls.getObject().position.y,
-                quaternion: controls.getObject().quaternion,
-                rotation: controls.getObject().rotation,
-
-
-                // 100.0 = mass
-                velocityx: velocity.x - velocity.x * 10.0,
-                velocityz: velocity.z - velocity.z * 10.0,
-                velocityy: velocity.y - 9.8 * 100.0, // 100.0 = mass
-                directionz: Number(moveForward) - Number(moveBackward),
-                directionx: Number(moveRight) - Number(moveLeft),
-                direction: direction.normalize() // 
-
-            }
-            if (moveForward || moveBackward) me.velocityz -= me.directionz * 400.0;
-            if (moveLeft || moveRight) me.velocityx -= me.directionx * 400.0;
-            const intersections = raycaster.intersectObjects(objects);
-            const isOnObject = intersections.length > 0;
-            if (isOnObject === true) {
-
-                velocity.y = Math.max(0, velocity.y);
-                canJump = true;
-
-            }
-            if (controls.getObject().position.y < 10) {
-                velocity.y = 0;
-                controls.getObject().position.y = 10;
-                canJump = true;
-            }
-            if (run) {
-                if (moveForward || moveBackward) velocity.z -= direction.z * 400.0;
-                if (moveLeft || moveRight) velocity.x -= direction.x * 400.0;
-            }
-            
-           
-           return me
-            
-        }
-        console.log(Updates)
+        
+        
         const animate = function () {
             requestAnimationFrame(animate);
             let now = Date.now()
@@ -226,50 +177,39 @@ const MultiWorldScene = () => {
             velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
             const intersections = raycaster.intersectObjects(objects);
             const isOnObject = intersections.length > 0;
-            if(Updates.getCurrentState != undefined){
-                
-               const obj = Updates.getCurrentState()
-               
-                if (obj != undefined ) {
-                    
-                    controls.moveRight(- obj.velocityx * obj.r);
-                    controls.moveForward(- obj.velocityz * obj.r);
-                    controls.getObject().position.y += (obj.velocityy * obj.r);
-                }
-
-           }
+            
             
             
             
 
             
-            // const me = handleInput(velocity, direction, delta)
+            
            
-            // direction.z = Number(moveForward) - Number(moveBackward);
-            // direction.x = Number(moveRight) - Number(moveLeft);
-            // direction.normalize(); // this ensures consistent movements in all directions
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize(); // this ensures consistent movements in all directions
 
-            // if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-            // if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+            if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+            if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-            // if (isOnObject === true) {
+            if (isOnObject === true) {
 
-            //     velocity.y = Math.max(0, velocity.y);
-            //     canJump = true;
+                velocity.y = Math.max(0, velocity.y);
+                canJump = true;
 
-            // }
-            // if (controls.getObject().position.y < 10) {
-            //     velocity.y = 0;
-            //     controls.getObject().position.y = 10;
-            //     canJump = true;
-            // }
-            // if (run) {
-            //         if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-            //         if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
-            // }
-            // controls.moveRight(- velocity.x * delta);
-            // controls.moveForward(- velocity.z * delta);
-            // controls.getObject().position.y += (velocity.y * delta);
+            }
+            if (controls.getObject().position.y < 10) {
+                velocity.y = 0;
+                controls.getObject().position.y = 10;
+                canJump = true;
+            }
+            if (run) {
+                    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+                    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+            }
+            controls.moveRight(- velocity.x * delta);
+            controls.moveForward(- velocity.z * delta);
+            controls.getObject().position.y += (velocity.y * delta);
             renderer.render(scene, camera);
 
             last = now
@@ -283,7 +223,7 @@ const MultiWorldScene = () => {
         }
     }, []);
 
-    const addPointerLock = (constrols, animate) => {
+    const addPointerLock = (controls, animate) => {
         var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
         if (havePointerLock) {
             let element = document.body;
@@ -291,10 +231,10 @@ const MultiWorldScene = () => {
                 
                 if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
                     
-                    constrols.enabled = true;
+                    controls.enabled = true;
                 } else {
                     cancelAnimationFrame(animate)
-                    constrols.enabled = false;
+                    controls.enabled = false;
                 }
             };
             let pointerlockerror = function (event) {
